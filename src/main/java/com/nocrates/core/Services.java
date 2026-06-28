@@ -14,8 +14,10 @@ import com.nocrates.message.Messages;
 import com.nocrates.open.OpenController;
 import com.nocrates.reward.RarityRegistry;
 import com.nocrates.storage.DataStore;
+import com.nocrates.storage.MySqlDataStore;
 import com.nocrates.storage.PlayerDataManager;
 import com.nocrates.storage.YamlDataStore;
+import org.bukkit.configuration.ConfigurationSection;
 
 /**
  * Central service locator. Constructs and holds the long-lived managers, wires
@@ -48,7 +50,7 @@ public final class Services {
         this.messages = new Messages(plugin);
         Hooks.init(plugin);
         this.rarities = new RarityRegistry(plugin);
-        this.dataStore = new YamlDataStore(plugin);
+        this.dataStore = createDataStore();
         this.playerData = new PlayerDataManager(plugin, dataStore);
         this.playerData.start();
         this.crates = new CrateRegistry(plugin);
@@ -89,6 +91,24 @@ public final class Services {
         } catch (Throwable t) {
             plugin.getLogger().warning("bStats metrics failed: " + t.getMessage());
         }
+    }
+
+    private DataStore createDataStore() {
+        if ("mysql".equalsIgnoreCase(config.storageType())) {
+            try {
+                ConfigurationSection mysql = config.raw().getConfigurationSection("storage.mysql");
+                if (mysql == null) {
+                    mysql = config.raw().createSection("storage.mysql");
+                }
+                DataStore store = new MySqlDataStore(plugin, mysql);
+                plugin.getLogger().info("Using MySQL storage.");
+                return store;
+            } catch (Throwable t) {
+                plugin.getLogger().log(java.util.logging.Level.SEVERE,
+                        "MySQL storage failed to initialise; falling back to YAML.", t);
+            }
+        }
+        return new YamlDataStore(plugin);
     }
 
     /** Re-read configuration files without a restart. */
