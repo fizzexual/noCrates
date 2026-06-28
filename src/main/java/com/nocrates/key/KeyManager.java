@@ -131,4 +131,18 @@ public final class KeyManager {
         }
         return false;
     }
+
+    /** Give one key back — used to refund an aborted open. */
+    public void refundOne(Player player, Crate crate) {
+        KeyType type = crate.key().type();
+        if (!type.requiresKey()) {
+            return;
+        }
+        if (type.allowsVirtual()) {
+            giveVirtual(player.getUniqueId(), crate, 1);
+        } else if (type.allowsPhysical()) {
+            player.getInventory().addItem(physicalKey(crate, 1)).values()
+                    .forEach(rem -> player.getWorld().dropItemNaturally(player.getLocation(), rem));
+        }
+    }
 }

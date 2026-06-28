@@ -3,6 +3,7 @@ package com.nocrates.core;
 import com.nocrates.NoCrates;
 import com.nocrates.animation.AnimationRegistry;
 import com.nocrates.block.CrateBlockManager;
+import com.nocrates.chesthunt.ChestHuntManager;
 import com.nocrates.crate.CrateRegistry;
 import com.nocrates.gui.MenuListener;
 import com.nocrates.hook.Hooks;
@@ -34,6 +35,7 @@ public final class Services {
     private AnimationRegistry animations;
     private OpenController openController;
     private CrateBlockManager crateBlocks;
+    private ChestHuntManager chestHunt;
 
     public Services(NoCrates plugin, Config config) {
         this.plugin = plugin;
@@ -54,6 +56,8 @@ public final class Services {
         this.openController = new OpenController(plugin, animations);
         this.crateBlocks = new CrateBlockManager(plugin);
         this.crateBlocks.start();
+        this.chestHunt = new ChestHuntManager(plugin);
+        this.chestHunt.start();
         plugin.getServer().getPluginManager().registerEvents(new MenuListener(), plugin);
         registerPlaceholders();
         startMetrics();
@@ -95,6 +99,9 @@ public final class Services {
     }
 
     public void shutdown() {
+        if (chestHunt != null) {
+            chestHunt.shutdown();
+        }
         if (crateBlocks != null) {
             crateBlocks.shutdown();
         }
@@ -141,5 +148,9 @@ public final class Services {
 
     public CrateBlockManager crateBlocks() {
         return crateBlocks;
+    }
+
+    public ChestHuntManager chestHunt() {
+        return chestHunt;
     }
 }

@@ -27,6 +27,7 @@ public final class Crate {
     private final int cooldownSeconds;
     private final String openSound;
     private final List<Reward> rewards;
+    private final ChestHuntSettings chestHunt;
 
     private Crate(Builder builder) {
         this.name = builder.name;
@@ -41,6 +42,7 @@ public final class Crate {
         this.cooldownSeconds = builder.cooldownSeconds;
         this.openSound = builder.openSound;
         this.rewards = List.copyOf(builder.rewards);
+        this.chestHunt = builder.chestHunt;
     }
 
     public static Builder builder(String name) {
@@ -97,6 +99,10 @@ public final class Crate {
         return rewards;
     }
 
+    public ChestHuntSettings chestHunt() {
+        return chestHunt;
+    }
+
     public static final class Builder {
 
         private final String name;
@@ -111,6 +117,7 @@ public final class Crate {
         private int cooldownSeconds;
         private String openSound;
         private final List<Reward> rewards = new ArrayList<>();
+        private ChestHuntSettings chestHunt = ChestHuntSettings.defaults();
 
         Builder(String name) {
             this.name = name.toLowerCase(Locale.ROOT);
@@ -173,6 +180,11 @@ public final class Crate {
         public Builder rewards(List<Reward> rewards) {
             this.rewards.clear();
             this.rewards.addAll(rewards);
+            return this;
+        }
+
+        public Builder chestHunt(ChestHuntSettings chestHunt) {
+            this.chestHunt = chestHunt;
             return this;
         }
 

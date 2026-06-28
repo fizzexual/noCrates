@@ -46,7 +46,7 @@ public final class OpenController {
         Messages messages = plugin.services().messages();
         UUID id = player.getUniqueId();
 
-        if (opening.contains(id)) {
+        if (opening.contains(id) || plugin.services().chestHunt().isHunting(id)) {
             messages.send(player, "already-opening");
             return;
         }
@@ -72,13 +72,26 @@ public final class OpenController {
             return;
         }
 
+        // Chest hunt is an interactive, multi-pick flow handled by its own manager.
+        if (crate.animation().equalsIgnoreCase("chesthunt")) {
+            if (plugin.services().chestHunt().begin(player, crate)) {
+                if (crate.cooldownSeconds() > 0) {
+                    cooldowns.put(cooldownKey, now + crate.cooldownSeconds() * 1000L);
+                }
+            } else {
+                keys.refundOne(player, crate);
+                messages.send(player, "chesthunt-no-space");
+            }
+            return;
+        }
+
         PlayerData data = plugin.services().playerData().get(id);
         List<Reward> available = availableRewards(crate, data);
         Reward won = crate.pity().shouldForce(data.opens(crate.name()))
                 ? roll.rollTier(available, crate.pity().tier())
                 : roll.roll(available);
         if (won == null) {
-            keys.giveVirtual(id, crate, 1); // refund the consumed key
+            keys.refundOne(player, crate); // refund the consumed key
             messages.send(player, "crate-empty");
             return;
         }

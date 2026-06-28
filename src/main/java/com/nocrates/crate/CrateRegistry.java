@@ -31,7 +31,13 @@ public final class CrateRegistry {
         crates.clear();
         File[] files = folder.listFiles((dir, name) -> name.toLowerCase(Locale.ROOT).endsWith(".yml"));
         if (files == null || files.length == 0) {
-            plugin.saveResource("crates/example.yml", false);
+            for (String resource : new String[]{"crates/example.yml", "crates/lootbox.yml", "crates/treasure.yml"}) {
+                try {
+                    plugin.saveResource(resource, false);
+                } catch (IllegalArgumentException ignored) {
+                    // resource not bundled — skip
+                }
+            }
             files = folder.listFiles((dir, name) -> name.toLowerCase(Locale.ROOT).endsWith(".yml"));
         }
         if (files == null) {

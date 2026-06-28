@@ -59,6 +59,15 @@ public final class CrateSerializer {
             builder.openSound(settings.getString("open-sound"));
         }
 
+        ConfigurationSection chestHunt = c.getConfigurationSection("chesthunt");
+        if (chestHunt != null) {
+            builder.chestHunt(new ChestHuntSettings(
+                    chestHunt.getInt("chests", 8),
+                    chestHunt.getInt("picks", 4),
+                    chestHunt.getInt("radius", 2),
+                    chestHunt.getInt("timeout-seconds", 30)));
+        }
+
         ConfigurationSection rewards = c.getConfigurationSection("rewards");
         if (rewards != null) {
             for (String id : rewards.getKeys(false)) {
@@ -113,6 +122,14 @@ public final class CrateSerializer {
         c.set("settings.cooldown-seconds", crate.cooldownSeconds());
         if (crate.openSound() != null) {
             c.set("settings.open-sound", crate.openSound());
+        }
+
+        if (crate.animation().equalsIgnoreCase("chesthunt")) {
+            ChestHuntSettings ch = crate.chestHunt();
+            c.set("chesthunt.chests", ch.chests());
+            c.set("chesthunt.picks", ch.picks());
+            c.set("chesthunt.radius", ch.radius());
+            c.set("chesthunt.timeout-seconds", ch.timeoutSeconds());
         }
 
         for (Reward reward : crate.rewards()) {

@@ -20,6 +20,9 @@ on-cooldown: "<red>Please wait <white><time>s</white> before opening that again.
 reward-limit: "<red>You've reached the limit for that reward."
 already-opening: "<red>Finish opening your current crate first."
 crate-empty: "<red>That crate has no rewards configured yet."
+chesthunt-start: "<gradient:#ffd34d:#ff7a18><bold>Chest Hunt!</bold></gradient> <gray>Open <white><picks></white> of the <white><chests></white> chests around you — choose wisely!"
+chesthunt-end: "<gray>The chest hunt has ended."
+chesthunt-no-space: "<red>Not enough open space around you. Stand in a clearer, flat area and try again."
 
 keys-given: "<green>Gave <white><amount>x</white> <white><crate></white> key(s) to <white><target></white>."
 keys-given-all: "<green>Gave <white><amount>x</white> <white><crate></white> key(s) to everyone online."
