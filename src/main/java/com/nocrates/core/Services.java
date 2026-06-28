@@ -2,6 +2,7 @@ package com.nocrates.core;
 
 import com.nocrates.NoCrates;
 import com.nocrates.gui.MenuListener;
+import com.nocrates.hook.Hooks;
 import com.nocrates.message.Messages;
 
 /**
@@ -23,6 +24,7 @@ public final class Services {
     /** Construct and register managers. Extended as subsystems come online. */
     public void start() {
         this.messages = new Messages(plugin);
+        Hooks.init(plugin);
         plugin.getServer().getPluginManager().registerEvents(new MenuListener(), plugin);
     }
 
