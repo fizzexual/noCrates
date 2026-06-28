@@ -76,8 +76,22 @@ public final class Messages {
         return miniMessage;
     }
 
+    /** Broadcast a prefixed message to the whole server. */
+    public void broadcast(String key, TagResolver... placeholders) {
+        String value = values.get(key);
+        if (value == null || value.isEmpty()) {
+            return;
+        }
+        org.bukkit.Bukkit.broadcast(miniMessage.deserialize(prefix + value, placeholders));
+    }
+
     /** Convenience for an unparsed (literal) placeholder, e.g. {@code <crate>}. */
     public static TagResolver ph(String name, String value) {
         return Placeholder.unparsed(name, value == null ? "" : value);
+    }
+
+    /** Placeholder whose value is a pre-built component (keeps its own formatting). */
+    public static TagResolver phComponent(String name, net.kyori.adventure.text.Component value) {
+        return Placeholder.component(name, value);
     }
 }

@@ -18,6 +18,8 @@ reward-won: "<gray>You won <reward><gray>!"
 broadcast-win: "<yellow><player></yellow> <gray>won <reward> <gray>from the <white><crate></white> crate!"
 on-cooldown: "<red>Please wait <white><time>s</white> before opening that again."
 reward-limit: "<red>You've reached the limit for that reward."
+already-opening: "<red>Finish opening your current crate first."
+crate-empty: "<red>That crate has no rewards configured yet."
 
 keys-given: "<green>Gave <white><amount>x</white> <white><crate></white> key(s) to <white><target></white>."
 keys-given-all: "<green>Gave <white><amount>x</white> <white><crate></white> key(s) to everyone online."
