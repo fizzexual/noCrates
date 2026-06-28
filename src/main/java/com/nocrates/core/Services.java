@@ -1,6 +1,8 @@
 package com.nocrates.core;
 
 import com.nocrates.NoCrates;
+import com.nocrates.gui.MenuListener;
+import com.nocrates.message.Messages;
 
 /**
  * Central service locator. Holds the long-lived managers for the plugin.
@@ -11,6 +13,7 @@ public final class Services {
 
     private final NoCrates plugin;
     private final Config config;
+    private Messages messages;
 
     public Services(NoCrates plugin, Config config) {
         this.plugin = plugin;
@@ -19,12 +22,13 @@ public final class Services {
 
     /** Construct and register managers. Extended as subsystems come online. */
     public void start() {
-        // Wired incrementally: VersionCompat, Messages, registries, datastore, etc.
+        this.messages = new Messages(plugin);
+        plugin.getServer().getPluginManager().registerEvents(new MenuListener(), plugin);
     }
 
     /** Flush and release resources. */
     public void shutdown() {
-        // datastore flush, hologram cleanup, etc.
+        // datastore flush, hologram cleanup, etc. (wired in later tasks)
     }
 
     public NoCrates plugin() {
@@ -33,5 +37,9 @@ public final class Services {
 
     public Config config() {
         return config;
+    }
+
+    public Messages messages() {
+        return messages;
     }
 }
