@@ -1,0 +1,24 @@
+# ==========================================================
+#  noCrates configuration
+#  Docs: https://github.com/fizzexual/noCrates
+# ==========================================================
+
+storage:
+  # yaml = flat-file (zero setup). mysql = networks / cross-server.
+  type: yaml
+  mysql:
+    host: localhost
+    port: 3306
+    database: nocrates
+    username: root
+    password: ""
+    pool-size: 8
+    use-ssl: false
+
+settings:
+  # Print extra diagnostics to console.
+  debug: false
+  # How often (seconds) cached player data is flushed to storage.
+  save-interval-seconds: 300
+  # Global default open sound (VersionCompat key); per-crate overrides win.
+  default-open-sound: BLOCK_NOTE_BLOCK_PLING

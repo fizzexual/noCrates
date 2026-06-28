@@ -1,0 +1,39 @@
+name: noCrates
+version: ${project.version}
+main: com.nocrates.NoCrates
+api-version: '1.20'
+author: fizzexual
+description: Advanced crates — in-game GUI editor, animations, lootboxes and chest-hunt.
+website: https://github.com/fizzexual/noCrates
+softdepend: [Vault, PlaceholderAPI, ItemsAdder, Oraxen, Nexo, MMOItems, DecentHolograms, HolographicDisplays]
+
+commands:
+  crate:
+    description: Open or preview a crate.
+    usage: /crate [preview] [name]
+  crates:
+    description: noCrates admin command.
+    usage: /crates <reload|give|key|editor|list|debug>
+    aliases: [nocrates]
+
+permissions:
+  nocrates.*:
+    description: Grants all noCrates permissions.
+    default: op
+    children:
+      nocrates.admin: true
+      nocrates.editor: true
+      nocrates.open: true
+      nocrates.key.give: true
+  nocrates.admin:
+    description: Admin commands (reload, give, debug).
+    default: op
+  nocrates.editor:
+    description: Access the in-game crate editor.
+    default: op
+  nocrates.open:
+    description: Open crates.
+    default: true
+  nocrates.key.give:
+    description: Give and manage keys.
+    default: op
