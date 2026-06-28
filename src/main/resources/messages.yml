@@ -1,0 +1,32 @@
+# ==========================================================
+#  noCrates messages — formatted with MiniMessage.
+#  Guide: https://docs.advntr.dev/minimessage/format.html
+#  Placeholders appear as <name> (e.g. <crate>, <reward>, <player>).
+# ==========================================================
+
+prefix: "<gradient:#7b5cff:#ff5ca8><bold>noCrates</bold></gradient> <dark_gray>» <gray>"
+
+no-permission: "<red>You don't have permission to do that."
+player-only: "<red>This command can only be used by a player."
+unknown-crate: "<red>There is no crate named <white><crate></white>."
+usage: "<gray>Usage: <white><usage></white>"
+reload: "<green>Configuration reloaded."
+
+no-key: "<red>You need a <white><key></white> to open the <white><crate></white> crate."
+crate-opened: "<green>You opened the <white><crate></white> crate!"
+reward-won: "<gray>You won <reward><gray>!"
+broadcast-win: "<yellow><player></yellow> <gray>won <reward> <gray>from the <white><crate></white> crate!"
+on-cooldown: "<red>Please wait <white><time>s</white> before opening that again."
+reward-limit: "<red>You've reached the limit for that reward."
+
+keys-given: "<green>Gave <white><amount>x</white> <white><crate></white> key(s) to <white><target></white>."
+keys-given-all: "<green>Gave <white><amount>x</white> <white><crate></white> key(s) to everyone online."
+keys-taken: "<green>Took <white><amount>x</white> <white><crate></white> key(s) from <white><target></white>."
+keys-received: "<green>You received <white><amount>x</white> <white><crate></white> key(s)!"
+key-balance: "<gray>You have <white><amount>x</white> <white><crate></white> key(s)."
+
+crate-bound: "<green>Bound the <white><crate></white> crate to the block you're looking at."
+crate-given: "<green>Gave the <white><crate></white> crate to <white><target></white>."
+preview-title: "<dark_gray>Preview · <crate>"
+no-crates: "<gray>No crates are configured yet. Use <white>/crates editor</white>."
+crate-list: "<gray>Crates (<white><count></white>): <white><crates></white>"
