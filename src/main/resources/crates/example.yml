@@ -1,0 +1,93 @@
+# ==========================================================
+#  Example crate. Copy this file (or use /crates editor) to
+#  make your own. The file name (minus .yml) is the crate id.
+#  Colours/text use MiniMessage.
+# ==========================================================
+
+display-name: "<gradient:#7b5cff:#ff5ca8><bold>Vote Crate</bold></gradient>"
+
+# Open style: csgo | roulette | reveal | cascade | physical | instant | quick | pick | lootbox | chesthunt
+animation: csgo
+
+key:
+  type: both            # virtual | physical | both
+  id: vote              # key identifier (players hold "vote" keys)
+  item:
+    material: TRIPWIRE_HOOK
+    name: "<yellow><bold>Vote Key</bold>"
+    lore:
+      - "<gray>Right-click a Vote Crate to open."
+    glow: true
+
+block:
+  enabled: false        # set true and add locations (or bind in-game with /crates editor)
+  locations: []         # e.g. ["world,100,65,200"]
+  hologram:
+    - "<gradient:#7b5cff:#ff5ca8><bold>VOTE CRATE</bold></gradient>"
+    - "<gray>Right-click to open"
+    - "<yellow>Keys: %nocrates_keys_vote%"
+  particle: VILLAGER_HAPPY
+
+preview:
+  enabled: true
+  title: "<dark_gray>Vote Crate · Rewards"
+
+pity:
+  enabled: true
+  every: 25             # every 25 opens, force a legendary
+  tier: legendary
+
+settings:
+  broadcast: true       # announce rare+ wins
+  cooldown-seconds: 0
+  open-sound: block.note_block.pling
+
+rewards:
+  diamonds:
+    rarity: common
+    chance: 50.0
+    display:
+      material: DIAMOND
+      name: "<aqua>5 Diamonds"
+      amount: 5
+    actions:
+      - "item: DIAMOND 5"
+      - "message: <green>You won <aqua>5 Diamonds<green>!"
+  gold:
+    rarity: uncommon
+    chance: 30.0
+    display:
+      material: GOLD_INGOT
+      name: "<yellow>$500"
+    actions:
+      - "money: 500"
+      - "message: <green>You won <yellow>$500<green>!"
+  enchanted-book:
+    rarity: rare
+    chance: 14.0
+    display:
+      material: ENCHANTED_BOOK
+      name: "<aqua>Sharpness V Book"
+      glow: true
+    actions:
+      - "item: ENCHANTED_BOOK 1"
+      - "message: <green>You won a <aqua>Sharpness V Book<green>!"
+  beacon:
+    rarity: epic
+    chance: 5.0
+    display:
+      material: BEACON
+      name: "<light_purple>Beacon"
+    actions:
+      - "item: BEACON 1"
+  vip:
+    rarity: legendary
+    chance: 1.0
+    display:
+      material: NETHER_STAR
+      name: "<gold><bold>VIP Rank"
+      glow: true
+    actions:
+      - "permission: nocrates.example.vip"
+      - "broadcast: <gold><player> <yellow>won <gold>VIP <yellow>from the Vote Crate!"
+      - "firework: true"
