@@ -32,3 +32,6 @@ crate-given: "<green>Gave the <white><crate></white> crate to <white><target></w
 preview-title: "<dark_gray>Preview · <crate>"
 no-crates: "<gray>No crates are configured yet. Use <white>/crates editor</white>."
 crate-list: "<gray>Crates (<white><count></white>): <white><crates></white>"
+player-not-found: "<red>Player <white><target></white> is not online."
+no-target-block: "<red>Look at a block within reach first."
+admin-help: "<gradient:#7b5cff:#ff5ca8><bold>noCrates admin</bold></gradient><newline><gray>/crates reload <dark_gray>— reload configs<newline><gray>/crates list <dark_gray>— list crates<newline><gray>/crates give [crate] [player] [amount] <dark_gray>— give a physical key<newline><gray>/crates key give|giveall|take [crate] [player] [amount] <dark_gray>— virtual keys<newline><gray>/crates open [crate] [player] <dark_gray>— force open<newline><gray>/crates preview [crate] <dark_gray>— preview rewards<newline><gray>/crates setblock [crate] <dark_gray>— bind the block you're looking at"
