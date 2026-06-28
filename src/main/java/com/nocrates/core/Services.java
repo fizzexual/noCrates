@@ -6,6 +6,7 @@ import com.nocrates.block.CrateBlockManager;
 import com.nocrates.crate.CrateRegistry;
 import com.nocrates.gui.MenuListener;
 import com.nocrates.hook.Hooks;
+import com.nocrates.hook.PlaceholderHook;
 import com.nocrates.key.KeyManager;
 import com.nocrates.message.Messages;
 import com.nocrates.open.OpenController;
@@ -54,6 +55,32 @@ public final class Services {
         this.crateBlocks = new CrateBlockManager(plugin);
         this.crateBlocks.start();
         plugin.getServer().getPluginManager().registerEvents(new MenuListener(), plugin);
+        registerPlaceholders();
+        startMetrics();
+    }
+
+    private void registerPlaceholders() {
+        if (plugin.getServer().getPluginManager().getPlugin("PlaceholderAPI") == null) {
+            return;
+        }
+        try {
+            new PlaceholderHook(plugin).register();
+            plugin.getLogger().info("Hooked into PlaceholderAPI.");
+        } catch (Throwable t) {
+            plugin.getLogger().warning("PlaceholderAPI hook failed: " + t.getMessage());
+        }
+    }
+
+    private void startMetrics() {
+        int id = config.raw().getInt("settings.bstats-id", 0);
+        if (id <= 0) {
+            return;
+        }
+        try {
+            new org.bstats.bukkit.Metrics(plugin, id);
+        } catch (Throwable t) {
+            plugin.getLogger().warning("bStats metrics failed: " + t.getMessage());
+        }
     }
 
     /** Re-read configuration files without a restart. */

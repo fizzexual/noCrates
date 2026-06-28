@@ -22,3 +22,5 @@ settings:
   save-interval-seconds: 300
   # Global default open sound (VersionCompat key); per-crate overrides win.
   default-open-sound: BLOCK_NOTE_BLOCK_PLING
+  # bStats metrics: set your plugin id from https://bstats.org to enable (0 = off).
+  bstats-id: 0
