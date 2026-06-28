@@ -49,6 +49,24 @@ public final class Crate {
         return new Builder(name);
     }
 
+    /** A builder pre-filled from an existing crate, for editing. */
+    public static Builder builder(Crate from) {
+        Builder b = new Builder(from.name);
+        b.displayName = from.displayName;
+        b.animation = from.animation;
+        b.key = from.key;
+        b.block = from.block;
+        b.previewEnabled = from.previewEnabled;
+        b.previewTitle = from.previewTitle;
+        b.pity = from.pity;
+        b.broadcast = from.broadcast;
+        b.cooldownSeconds = from.cooldownSeconds;
+        b.openSound = from.openSound;
+        b.rewards.addAll(from.rewards);
+        b.chestHunt = from.chestHunt;
+        return b;
+    }
+
     public String name() {
         return name;
     }

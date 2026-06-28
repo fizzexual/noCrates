@@ -74,6 +74,30 @@ public final class Items {
         return MM.deserialize(text).decoration(TextDecoration.ITALIC, false);
     }
 
+    /** Build a {@link DisplaySpec} from a live item (for the editor's add-from-hand). */
+    public static DisplaySpec fromItem(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        String name = null;
+        List<String> lore = new ArrayList<>();
+        boolean glow = false;
+        Integer customModelData = null;
+        if (meta != null) {
+            if (meta.hasDisplayName() && meta.displayName() != null) {
+                name = MM.serialize(meta.displayName());
+            }
+            if (meta.hasLore() && meta.lore() != null) {
+                for (Component line : meta.lore()) {
+                    lore.add(MM.serialize(line));
+                }
+            }
+            glow = !meta.getEnchants().isEmpty();
+            if (meta.hasCustomModelData()) {
+                customModelData = meta.getCustomModelData();
+            }
+        }
+        return new DisplaySpec(item.getType().name(), name, lore, item.getAmount(), glow, customModelData);
+    }
+
     private static void applyGlow(ItemMeta meta) {
         try {
             Enchantment enchant = Enchantment.getByKey(NamespacedKey.minecraft("infinity"));

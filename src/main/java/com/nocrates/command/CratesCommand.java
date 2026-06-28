@@ -3,6 +3,8 @@ package com.nocrates.command;
 import com.nocrates.NoCrates;
 import com.nocrates.crate.Crate;
 import com.nocrates.crate.CrateBlock;
+import com.nocrates.editor.CrateEditor;
+import com.nocrates.editor.EditorHub;
 import com.nocrates.key.KeyManager;
 import com.nocrates.message.Messages;
 import com.nocrates.open.PreviewMenu;
@@ -23,7 +25,7 @@ import java.util.List;
 public final class CratesCommand implements CommandExecutor, TabCompleter {
 
     private static final List<String> SUBS =
-            List.of("reload", "list", "give", "key", "open", "preview", "setblock");
+            List.of("reload", "list", "editor", "give", "key", "open", "preview", "setblock");
     private static final List<String> KEY_SUBS = List.of("give", "giveall", "take");
 
     private final NoCrates plugin;
@@ -48,6 +50,7 @@ public final class CratesCommand implements CommandExecutor, TabCompleter {
                 plugin.services().reload();
                 messages.send(sender, "reload");
             }
+            case "editor" -> editor(sender, args);
             case "list" -> list(sender);
             case "give" -> give(sender, args);
             case "key" -> key(sender, args);
@@ -232,6 +235,27 @@ public final class CratesCommand implements CommandExecutor, TabCompleter {
                 .openSound(crate.openSound())
                 .rewards(crate.rewards())
                 .build();
+    }
+
+    private void editor(CommandSender sender, String[] args) {
+        Messages m = plugin.services().messages();
+        if (!(sender instanceof Player player)) {
+            m.send(sender, "player-only");
+            return;
+        }
+        if (!player.hasPermission("nocrates.editor")) {
+            m.send(sender, "no-permission");
+            return;
+        }
+        if (args.length >= 2) {
+            if (!plugin.services().crates().exists(args[1])) {
+                m.send(sender, "unknown-crate", Messages.ph("crate", args[1]));
+                return;
+            }
+            new CrateEditor(plugin, args[1]).open(player);
+        } else {
+            new EditorHub(plugin).open(player);
+        }
     }
 
     private void list(CommandSender sender) {
