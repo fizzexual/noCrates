@@ -2,6 +2,7 @@ package com.nocrates.core;
 
 import com.nocrates.NoCrates;
 import com.nocrates.animation.AnimationRegistry;
+import com.nocrates.block.CrateBlockManager;
 import com.nocrates.crate.CrateRegistry;
 import com.nocrates.gui.MenuListener;
 import com.nocrates.hook.Hooks;
@@ -31,6 +32,7 @@ public final class Services {
     private KeyManager keys;
     private AnimationRegistry animations;
     private OpenController openController;
+    private CrateBlockManager crateBlocks;
 
     public Services(NoCrates plugin, Config config) {
         this.plugin = plugin;
@@ -49,6 +51,8 @@ public final class Services {
         this.keys = new KeyManager(plugin, playerData);
         this.animations = new AnimationRegistry(plugin);
         this.openController = new OpenController(plugin, animations);
+        this.crateBlocks = new CrateBlockManager(plugin);
+        this.crateBlocks.start();
         plugin.getServer().getPluginManager().registerEvents(new MenuListener(), plugin);
     }
 
@@ -58,9 +62,15 @@ public final class Services {
         messages.reload();
         rarities.load(plugin);
         crates.reload();
+        if (crateBlocks != null) {
+            crateBlocks.refresh();
+        }
     }
 
     public void shutdown() {
+        if (crateBlocks != null) {
+            crateBlocks.shutdown();
+        }
         if (playerData != null) {
             playerData.shutdown();
         }
@@ -100,5 +110,9 @@ public final class Services {
 
     public OpenController openController() {
         return openController;
+    }
+
+    public CrateBlockManager crateBlocks() {
+        return crateBlocks;
     }
 }

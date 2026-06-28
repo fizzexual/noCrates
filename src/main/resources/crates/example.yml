@@ -24,8 +24,8 @@ block:
   locations: []         # e.g. ["world,100,65,200"]
   hologram:
     - "<gradient:#7b5cff:#ff5ca8><bold>VOTE CRATE</bold></gradient>"
-    - "<gray>Right-click to open"
-    - "<yellow>Keys: %nocrates_keys_vote%"
+    - "<gray>Right-click to open · Left-click to preview"
+    - "<yellow>Open with a Vote Key"
   particle: VILLAGER_HAPPY
 
 preview:
