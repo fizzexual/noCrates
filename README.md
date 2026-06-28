@@ -1,0 +1,121 @@
+<h1 align="center">noCrates</h1>
+
+<p align="center">
+  <b>An advanced, free, open-source crates plugin for Minecraft — built to do everything the community wants.</b><br>
+  In-game editor · weighted rewards · animated openings · physical &amp; virtual keys · one jar for MC&nbsp;1.20&nbsp;→&nbsp;latest.
+</p>
+
+<p align="center">
+  <img alt="MC" src="https://img.shields.io/badge/Minecraft-1.20%20%E2%86%92%2026.x-7b5cff">
+  <img alt="Java" src="https://img.shields.io/badge/Java-17%2B-orange">
+  <img alt="License" src="https://img.shields.io/badge/License-MIT-blue">
+</p>
+
+---
+
+## Highlights
+
+- **One jar, every modern version.** Compiled to Java 17 bytecode against the stable Paper API, with a `VersionCompat` layer that resolves materials/sounds/particles by name. The same build loads on **MC 1.20 (Java 17), 1.21 (Java 21) and 26.x (Java 25)** — no NMS, no per-version downloads.
+- **Animated openings.** CS:GO-style horizontal spinner, GUI reveal, and instant — behind a pluggable `Animation` interface (more in the roadmap).
+- **Physical *and* virtual keys.** Place crate blocks with floating holograms, or run fully virtual crates openable from a command. Physical keys are tagged with persistent data so they survive renames and stacking.
+- **Deep reward system.** Weighted chances, colour-coded rarities, per-player win limits & cooldowns, and a **pity/milestone** system that guarantees a tier every N opens.
+- **In-game friendly.** Live `/crates reload`, bind a crate to the block you're looking at with `/crates setblock`, preview every reward's real drop chance.
+- **Integrations, all optional.** Vault (money/permission rewards), PlaceholderAPI, bStats. The plugin runs perfectly with none of them installed.
+
+## Cross-version support
+
+| Minecraft | Java runtime | Status |
+|---|---|---|
+| 1.20 – 1.20.6 | 17+ | ✅ |
+| 1.21 – 1.21.x | 21+ | ✅ |
+| 26.1+ | 25+ | ✅ |
+
+> Built against `paper-api 1.20.1`. Material/sound/particle names that changed between versions are resolved with fallbacks; you can override any of them in config if a future version renames something.
+
+## Installation
+
+1. Download `noCrates-x.y.z.jar` from [Releases](https://github.com/fizzexual/noCrates/releases) (or build it — see below).
+2. Drop it in your server's `plugins/` folder and restart.
+3. (Optional) Install **Vault** + an economy plugin and **PlaceholderAPI**.
+4. Edit `plugins/noCrates/crates/example.yml` or make new crate files, then `/crates reload`.
+
+## Quick start
+
+```text
+/crates key give vote <you> 5      # give yourself 5 Vote keys
+/crate vote                        # open it (CS:GO animation)
+/crate preview vote                # see every reward and its chance
+/crates setblock vote              # bind the block you're looking at as a Vote Crate
+```
+
+## Commands
+
+| Command | Permission | Description |
+|---|---|---|
+| `/crate [name]` | `nocrates.open` | Open a crate (or list your crates with no args) |
+| `/crate preview <name>` | `nocrates.open` | Preview a crate's rewards & chances |
+| `/crates reload` | `nocrates.admin` | Reload all configs |
+| `/crates list` | `nocrates.admin` | List configured crates |
+| `/crates give <crate> <player> [n]` | `nocrates.admin` | Give a **physical** key item |
+| `/crates key give\|giveall\|take <crate> [player] [n]` | `nocrates.admin` | Manage **virtual** keys |
+| `/crates open <crate> [player]` | `nocrates.admin` | Force-open a crate |
+| `/crates setblock <crate>` | `nocrates.admin` | Bind the block you're looking at |
+
+## Crate configuration
+
+Each crate is one file: `plugins/noCrates/crates/<name>.yml`. All text uses [MiniMessage](https://docs.advntr.dev/minimessage/format.html).
+
+```yaml
+display-name: "<gradient:#7b5cff:#ff5ca8><bold>Vote Crate</bold></gradient>"
+animation: csgo                 # csgo | reveal | instant  (more coming)
+key:
+  type: both                    # virtual | physical | both
+  id: vote
+  item: { material: TRIPWIRE_HOOK, name: "<yellow>Vote Key", glow: true }
+pity: { enabled: true, every: 25, tier: legendary }
+settings: { broadcast: true, cooldown-seconds: 0 }
+rewards:
+  diamonds:
+    rarity: common
+    chance: 50.0                # relative weight, normalised across the crate
+    display: { material: DIAMOND, name: "<aqua>5 Diamonds", amount: 5 }
+    actions:
+      - "item: DIAMOND 5"
+      - "message: <green>You won 5 diamonds!"
+```
+
+### Reward actions
+
+`item: MATERIAL [amount]` · `command: <console cmd>` · `playercommand: <cmd>` ·
+`message: <text>` · `broadcast: <text>` · `money: <amount>` (Vault) · `xp: <amount>` ·
+`permission: <node>` (Vault) · `sound: <key> [vol] [pitch]` · `firework: true`
+
+`%player%` is replaced with the winner's name in commands and messages.
+
+## Placeholders (PlaceholderAPI)
+
+`%nocrates_keys_<crate>%` · `%nocrates_opens_<crate>%` · `%nocrates_pity_<crate>%` (opens until the next milestone).
+
+## Building from source
+
+Requires JDK 17+ and Maven.
+
+```bash
+mvn clean package
+# -> target/noCrates-x.y.z.jar
+```
+
+## Roadmap
+
+noCrates ships in phases; the foundation above is live. Coming next:
+
+- **In-game GUI editor** — build and edit crates entirely through menus.
+- **More animations** — roulette/wheel, cascade/cosmic, physical block-pop, quick/mass open, "pick your reward".
+- **Lootbox** — right-click a block for an instant reward, no key.
+- **Chest Hunt** — spawn N chests in a grid around you and pick K of them.
+- **Custom items** — ItemsAdder / Oraxen / Nexo / MMOItems / ExecutableItems.
+- **MySQL storage** for cross-server networks; win history & broadcasts.
+
+## License
+
+[MIT](LICENSE) © 2026 fizzexual
