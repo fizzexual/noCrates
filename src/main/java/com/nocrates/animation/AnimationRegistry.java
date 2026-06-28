@@ -19,6 +19,9 @@ public final class AnimationRegistry {
         register(new InstantAnimation());
         register(new RevealAnimation(plugin));
         register(new CsgoAnimation(plugin));
+        register(new RouletteAnimation(plugin));
+        register(new CascadeAnimation(plugin));
+        register(new PhysicalAnimation(plugin));
         this.fallback = byId.get("reveal");
     }
 

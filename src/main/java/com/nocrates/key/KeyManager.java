@@ -114,12 +114,15 @@ public final class KeyManager {
     }
 
     public boolean has(Player player, Crate crate) {
-        return total(player, crate) > 0;
+        return !crate.key().type().requiresKey() || total(player, crate) > 0;
     }
 
     /** Consume a single key, preferring a physical key when one is held. */
     public boolean consumeOne(Player player, Crate crate) {
         KeyType type = crate.key().type();
+        if (!type.requiresKey()) {
+            return true; // lootbox — nothing to consume
+        }
         if (type.allowsPhysical() && countPhysical(player, crate) > 0) {
             return consumePhysical(player, crate, 1);
         }

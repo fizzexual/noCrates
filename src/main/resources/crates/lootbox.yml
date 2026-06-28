@@ -1,0 +1,51 @@
+# ==========================================================
+#  Example LOOTBOX: no key required, just right-click and a
+#  reward drops. Gated by a cooldown instead of a key.
+#  Set block.enabled + a location (or /crates setblock lootbox).
+# ==========================================================
+
+display-name: "<gradient:#43e97b:#38f9d7><bold>Hourly Lootbox</bold></gradient>"
+
+animation: physical          # in-world reveal; "instant" also works well here
+
+key:
+  type: none                 # <- no key needed
+
+settings:
+  broadcast: false
+  cooldown-seconds: 3600     # one free open per hour
+
+block:
+  enabled: false
+  locations: []
+  hologram:
+    - "<gradient:#43e97b:#38f9d7><bold>HOURLY LOOTBOX</bold></gradient>"
+    - "<gray>Right-click for a free reward"
+  particle: HAPPY_VILLAGER
+
+rewards:
+  bread:
+    rarity: common
+    chance: 55.0
+    display: { material: BREAD, name: "<white>16x Bread" }
+    actions:
+      - "item: BREAD 16"
+  iron:
+    rarity: uncommon
+    chance: 30.0
+    display: { material: IRON_INGOT, name: "<white>8x Iron" }
+    actions:
+      - "item: IRON_INGOT 8"
+  diamond:
+    rarity: rare
+    chance: 13.0
+    display: { material: DIAMOND, name: "<aqua>2x Diamond" }
+    actions:
+      - "item: DIAMOND 2"
+  money:
+    rarity: epic
+    chance: 2.0
+    display: { material: EMERALD, name: "<green>$1000" }
+    actions:
+      - "money: 1000"
+      - "message: <green>You found <yellow>$1000<green>!"
