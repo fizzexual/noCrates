@@ -16,11 +16,12 @@
 ## Highlights
 
 - **One jar, every modern version.** Compiled to Java 17 bytecode against the stable Paper API, with a `VersionCompat` layer that resolves materials/sounds/particles by name. The same build loads on **MC 1.20 (Java 17), 1.21 (Java 21) and 26.x (Java 25)** — no NMS, no per-version downloads.
-- **Animated openings.** CS:GO-style horizontal spinner, GUI reveal, and instant — behind a pluggable `Animation` interface (more in the roadmap).
+- **In-game GUI editor.** `/crates editor` — create crates, pick animations, add the item in your hand as a reward, set chances/rarities, keys, cooldowns and pity, all through menus with live save. No file editing required.
+- **Six animations + two standout mechanics.** CS:GO spinner, GUI reveal, roulette, cascade, in-world physical and instant — plus a **Lootbox** (right-click a block, no key, instant reward) and the novel **Chest Hunt** (spawns a grid of chests around you; open only a few). Pluggable `Animation` interface.
 - **Physical *and* virtual keys.** Place crate blocks with floating holograms, or run fully virtual crates openable from a command. Physical keys are tagged with persistent data so they survive renames and stacking.
 - **Deep reward system.** Weighted chances, colour-coded rarities, per-player win limits & cooldowns, and a **pity/milestone** system that guarantees a tier every N opens.
 - **In-game friendly.** Live `/crates reload`, bind a crate to the block you're looking at with `/crates setblock`, preview every reward's real drop chance.
-- **Integrations, all optional.** Vault (money/permission rewards), PlaceholderAPI, bStats. The plugin runs perfectly with none of them installed.
+- **Integrations, all optional.** Vault (money/permission rewards), PlaceholderAPI, custom items (ItemsAdder / Oraxen / Nexo / MMOItems), and bStats. **YAML storage by default, optional MySQL/MariaDB** for cross-server networks. The plugin runs perfectly with none of these installed.
 
 ## Cross-version support
 
@@ -54,6 +55,7 @@
 |---|---|---|
 | `/crate [name]` | `nocrates.open` | Open a crate (or list your crates with no args) |
 | `/crate preview <name>` | `nocrates.open` | Preview a crate's rewards & chances |
+| `/crates editor [crate]` | `nocrates.editor` | Open the in-game crate editor |
 | `/crates reload` | `nocrates.admin` | Reload all configs |
 | `/crates list` | `nocrates.admin` | List configured crates |
 | `/crates give <crate> <player> [n]` | `nocrates.admin` | Give a **physical** key item |
@@ -67,7 +69,7 @@ Each crate is one file: `plugins/noCrates/crates/<name>.yml`. All text uses [Min
 
 ```yaml
 display-name: "<gradient:#7b5cff:#ff5ca8><bold>Vote Crate</bold></gradient>"
-animation: csgo                 # csgo | reveal | instant  (more coming)
+animation: csgo                 # csgo | reveal | roulette | cascade | physical | instant | chesthunt
 key:
   type: both                    # virtual | physical | both
   id: vote
@@ -88,7 +90,8 @@ rewards:
 
 `item: MATERIAL [amount]` · `command: <console cmd>` · `playercommand: <cmd>` ·
 `message: <text>` · `broadcast: <text>` · `money: <amount>` (Vault) · `xp: <amount>` ·
-`permission: <node>` (Vault) · `sound: <key> [vol] [pitch]` · `firework: true`
+`permission: <node>` (Vault) · `sound: <key> [vol] [pitch]` · `firework: true` ·
+`customitem: <itemsadder|oraxen|nexo|mmoitems> <id>` (give an item from a custom-item plugin)
 
 `%player%` is replaced with the winner's name in commands and messages.
 
@@ -107,14 +110,12 @@ mvn clean package
 
 ## Roadmap
 
-noCrates ships in phases; the foundation above is live. Coming next:
+The in-game editor, six animations, lootbox, chest hunt, MySQL storage and custom-item rewards are all **live**. Still planned:
 
-- **In-game GUI editor** — build and edit crates entirely through menus.
-- **More animations** — roulette/wheel, cascade/cosmic, physical block-pop, quick/mass open, "pick your reward".
-- **Lootbox** — right-click a block for an instant reward, no key.
-- **Chest Hunt** — spawn N chests in a grid around you and pick K of them.
-- **Custom items** — ItemsAdder / Oraxen / Nexo / MMOItems / ExecutableItems.
-- **MySQL storage** for cross-server networks; win history & broadcasts.
+- **"Pick your reward" GUI** — a no-gambling, choose-one-of-N opening.
+- **Quick / mass open** — open many keys at once with a summary screen.
+- **Win history GUI** and per-crate leaderboards.
+- **Config import** from CrazyCrates / ExcellentCrates.
 
 ## License
 

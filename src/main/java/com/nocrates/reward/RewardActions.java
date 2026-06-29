@@ -51,6 +51,7 @@ public final class RewardActions {
             case "permission", "perm" -> new PermissionAction(arg);
             case "sound" -> SoundAction.parse(arg);
             case "firework" -> new FireworkAction();
+            case "customitem", "custom" -> new CustomItemAction(arg);
             default -> player -> {
             };
         };
@@ -240,6 +241,73 @@ public final class RewardActions {
                 firework.detonate();
             } catch (Throwable ignored) {
                 // fireworks are cosmetic — never fail an open over them
+            }
+        }
+    }
+
+    /**
+     * Gives an item from a custom-item plugin, resolved reflectively so the
+     * plugin compiles and runs without those plugins present. Format:
+     * {@code customitem: <provider> <id>} (MMOItems: {@code <type> <id>}).
+     * Providers: itemsadder/ia, oraxen, nexo, mmoitems.
+     */
+    private static final class CustomItemAction implements RewardAction {
+        private final String spec;
+
+        CustomItemAction(String spec) {
+            this.spec = spec;
+        }
+
+        @Override
+        public void execute(Player player) {
+            ItemStack item = resolve(spec);
+            if (item != null) {
+                player.getInventory().addItem(item).values()
+                        .forEach(rem -> player.getWorld().dropItemNaturally(player.getLocation(), rem));
+            }
+        }
+
+        private static ItemStack resolve(String spec) {
+            String[] parts = spec.trim().split("\\s+");
+            if (parts.length < 2) {
+                return null;
+            }
+            try {
+                switch (parts[0].toLowerCase(Locale.ROOT)) {
+                    case "itemsadder", "ia" -> {
+                        Class<?> cls = Class.forName("dev.lone.itemsadder.api.CustomStack");
+                        Object stack = cls.getMethod("getInstance", String.class).invoke(null, parts[1]);
+                        return stack == null ? null
+                                : (ItemStack) stack.getClass().getMethod("getItemStack").invoke(stack);
+                    }
+                    case "oraxen" -> {
+                        Class<?> cls = Class.forName("io.th0rgal.oraxen.api.OraxenItems");
+                        Object builder = cls.getMethod("getItemById", String.class).invoke(null, parts[1]);
+                        return builder == null ? null
+                                : (ItemStack) builder.getClass().getMethod("build").invoke(builder);
+                    }
+                    case "nexo" -> {
+                        Class<?> cls = Class.forName("com.nexomc.nexo.api.NexoItems");
+                        Object builder = cls.getMethod("itemFromId", String.class).invoke(null, parts[1]);
+                        return builder == null ? null
+                                : (ItemStack) builder.getClass().getMethod("build").invoke(builder);
+                    }
+                    case "mmoitems" -> {
+                        if (parts.length < 3) {
+                            return null;
+                        }
+                        Class<?> cls = Class.forName("net.Indyuce.mmoitems.MMOItems");
+                        Object mmo = cls.getField("plugin").get(null);
+                        return (ItemStack) mmo.getClass()
+                                .getMethod("getItem", String.class, String.class)
+                                .invoke(mmo, parts[1], parts[2]);
+                    }
+                    default -> {
+                        return null;
+                    }
+                }
+            } catch (Throwable t) {
+                return null;
             }
         }
     }
