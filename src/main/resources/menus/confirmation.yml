@@ -1,0 +1,13 @@
+# Paid-open confirmation. <cost> = formatted price.
+title: "<dark_gray>Open for <gold><cost></gold>?"
+rows: 3
+items:
+  confirm:
+    slot: 11
+    item: { material: LIME_WOOL, name: "<green><bold>Confirm</bold>", lore: ["<gray>Pay <gold><cost></gold> and open"] }
+  info:
+    slot: 13
+    item: { material: GOLD_INGOT, name: "<gold><cost>", lore: ["<gray>This crate costs money to open"] }
+  cancel:
+    slot: 15
+    item: { material: RED_WOOL, name: "<red><bold>Cancel</bold>" }

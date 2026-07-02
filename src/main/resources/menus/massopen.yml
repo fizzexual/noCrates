@@ -1,0 +1,14 @@
+# Mass-opening tier picker (mass-opening module). <crate> = crate display name.
+title: "<dark_gray>Mass open <dark_gray>» <crate>"
+rows: 3
+content-slots: [10, 11, 12, 13, 14, 15, 16]
+items:
+  close:
+    slot: 22
+    item: { material: BARRIER, name: "<red>Close" }
+  tier:
+    slot: 0   # template icon for each tier; slot unused
+    item: { material: TRIPWIRE_HOOK, name: "<yellow>Open x<tier>", lore: ["<gray>Opens <yellow><tier></yellow> keys at once"] }
+  summary:
+    slot: 0   # template icon for the summary screen; slot unused
+    item: { material: CHEST, name: "<gold>Results" }

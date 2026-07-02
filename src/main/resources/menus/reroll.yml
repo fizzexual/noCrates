@@ -1,0 +1,14 @@
+# Claim-or-reroll menu shown after the animation when rerolls are available.
+# Closing the menu claims the shown reward. <rerolls> = rerolls left.
+title: "<dark_gray>Your reward"
+rows: 3
+items:
+  reward:
+    slot: 13
+    item: { material: CHEST, name: "<gold>Your reward" }   # replaced by the actual reward
+  accept:
+    slot: 11
+    item: { material: LIME_WOOL, name: "<green><bold>Claim</bold>", lore: ["<gray>Keep this reward"] }
+  reroll:
+    slot: 15
+    item: { material: ENDER_EYE, name: "<light_purple><bold>Reroll</bold>", lore: ["<gray>Rerolls left: <yellow><rerolls>"] }

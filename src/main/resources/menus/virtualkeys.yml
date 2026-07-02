@@ -1,0 +1,8 @@
+# /crates virtualkeys — your virtual key balances.
+title: "<dark_gray>Your keys"
+rows: 4
+content-slots: [10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25]
+items:
+  close:
+    slot: 31
+    item: { material: BARRIER, name: "<red>Close" }

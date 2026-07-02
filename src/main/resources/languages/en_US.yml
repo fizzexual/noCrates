@@ -98,6 +98,17 @@ chesthunt-start: "<gray>A chest hunt! Open up to <yellow><picks></yellow> of the
 chesthunt-picked: "<gray>You picked a chest: <white><reward></white> <gray>(<remaining> picks left)"
 chesthunt-over: "<gray>The chest hunt is over."
 
+# --- menus / previews ---
+preview-lore-weight: "<dark_gray>Weight: <gray><weight>"
+preview-lore-chance: "<gray>Chance: <yellow><chance>%"
+selective-lore-cost: "<gray>Cost: <yellow><cost> key(s)"
+selective-lore-pick: "<green>Click to choose this reward!"
+selective-lore-blocked: "<red>Not available for you right now."
+selective-not-enough-keys: "<red>You need <yellow><amount></yellow> key(s) to pick this reward."
+virtualkeys-lore-balance: "<gray>Virtual balance: <yellow><amount>"
+open-nothing-available: "<red>There is nothing you can win from this crate right now."
+placeholder-ready: "Ready"
+
 # --- time formatting ---
 time-days: "<d>d <h>h"
 time-hours: "<h>h <m>m"

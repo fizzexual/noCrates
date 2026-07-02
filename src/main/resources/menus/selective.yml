@@ -1,0 +1,16 @@
+# Selective (pick-your-reward) menu. <crate> = crate display name.
+title: "<dark_gray>Pick a reward <dark_gray>» <crate>"
+rows: 6
+content-slots: [10, 11, 12, 13, 14, 15, 16,
+                19, 20, 21, 22, 23, 24, 25,
+                28, 29, 30, 31, 32, 33, 34]
+items:
+  previous:
+    slot: 45
+    item: { material: ARROW, name: "<yellow>Previous page" }
+  next:
+    slot: 53
+    item: { material: ARROW, name: "<yellow>Next page" }
+  close:
+    slot: 49
+    item: { material: BARRIER, name: "<red>Close" }

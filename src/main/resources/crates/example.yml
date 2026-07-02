@@ -1,0 +1,103 @@
+# Example crate. One file per crate; copy this to create more, or use /crates editor.
+enabled: true
+display-name: "<gradient:#7b5cff:#ff5ca8><bold>Vote Crate</bold></gradient>"
+
+engine:
+  type: BLOCK              # BLOCK | MODEL
+  block-material: CHEST    # chests/shulkers get the native lid animation
+  model-item:              # used when type: MODEL (rendered as a floating item display)
+    material: CHEST
+    custom-model-data: -1
+  model-y-offset: 0.0
+  model-yaw: 0.0
+
+locations: []              # filled by /crates attach or /crates placecrate
+
+permission:
+  required: false
+  node: nocrates.crate.example
+
+open:
+  cost: 0.0                # Vault money per open (confirmation menu shown when > 0)
+  cooldown-seconds: 0
+  quick-open: true         # sneak + right-click skips the animation
+  simultaneous: true       # several players may open at once
+  knockback: true          # push players away when they have no key
+
+keys:
+  - key: vote
+    amount: 1
+    priority: 0
+
+hologram:
+  lines:
+    - "<gradient:#7b5cff:#ff5ca8><bold>VOTE CRATE</bold></gradient>"
+    - "<gray>Right-click to open"
+    - "<gray>Left-click to preview"
+  offset: 1.6
+
+preview:
+  enabled: true
+  menu: preview            # menus/preview.yml
+
+rewards-mode: RANDOM       # RANDOM | SELECTIVE (players pick their reward)
+max-win-rewards: 1         # rewards granted per opening
+
+animation:
+  idle:
+    - "SPIRAL;{DUST;#7b5cff;0;0.1;0;0.9;0;2}"
+    - "CIRCLE;{DUST;#ff5ca8;0;1.4;0;0.5;0;1}"
+  pre-open: DEFAULT        # see /crates editor for every installed animation
+  post-open: BALL
+  reward-display: DEFAULT
+  pre-delay-ticks: 30
+  post-delay-ticks: 30
+  display-duration-ticks: 60
+
+rewards:
+  diamonds:
+    percentage: 50.0
+    display-item: { material: DIAMOND, amount: 5, name: "<aqua>5 Diamonds" }
+    win-items:
+      '0': { material: DIAMOND, amount: 5 }
+  golden_apples:
+    percentage: 30.0
+    display-item: { material: GOLDEN_APPLE, amount: 3, name: "<gold>3 Golden Apples" }
+    win-items:
+      '0': { material: GOLDEN_APPLE, amount: 3 }
+  money:
+    percentage: 17.0
+    display-item: { material: SUNFLOWER, name: "<yellow>$500", lore: ["<gray>Paid straight to your balance"] }
+    virtual: true
+    win-commands:
+      - "eco give %player% 500"
+  vip_rank:
+    percentage: 3.0
+    display-item: { material: NETHER_STAR, name: "<gold><bold>VIP Rank</bold>", glow: true }
+    virtual: true
+    broadcast: true
+    win-commands:
+      - "lp user %player% parent add vip"
+    win-limits:
+      player: 1            # each player can win this once
+      player-cooldown: 0
+    restricted-permissions:
+      - group.vip          # players who are already VIP...
+    alternative-reward:    # ...get this instead
+      enabled: true
+      display-name: "<yellow>$2000 (VIP owned)"
+      virtual: true
+      commands:
+        - "eco give %player% 2000"
+
+guaranteed:
+  enabled: true
+  mode: REPETITIVE         # REPETITIVE (every N opens) | SEQUENTIAL (one-time thresholds)
+  milestones:
+    - openings: 25
+      reward: vip_rank
+
+reroll:
+  enabled: false
+  free: 0
+  groups: {}

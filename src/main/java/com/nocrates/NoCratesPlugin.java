@@ -7,6 +7,7 @@ import com.nocrates.core.MainConfig;
 import com.nocrates.core.Services;
 import com.nocrates.hook.CustomItems;
 import com.nocrates.hook.Hooks;
+import com.nocrates.hook.VaultHook;
 import com.nocrates.logging.ActionLogger;
 import com.nocrates.menu.ChatPrompt;
 import com.nocrates.menu.MenuConfig;
@@ -54,9 +55,44 @@ public final class NoCratesPlugin extends JavaPlugin {
         services.players(new PlayerCache(services.dataStore()));
         services.actionLogger(new ActionLogger(this, config));
 
+        services.keys(new com.nocrates.key.KeyRegistry(this));
+        services.keyService(new com.nocrates.key.KeyService(services.keys(), services.players()));
+        services.crates(new com.nocrates.crate.CrateRegistry(this));
+        services.placements(new com.nocrates.crate.PlacementManager(this, services.crates()));
+        services.animations(new com.nocrates.animation.AnimationService(this));
+        services.winLimits(new com.nocrates.reward.WinLimitService(services.dataStore()));
+        services.openService(new com.nocrates.open.OpenService());
+        services.rerolls(new com.nocrates.reroll.RerollService(services.players()));
+        services.stats(new com.nocrates.stats.StatsService(services.players()));
+
+        VaultHook.detect();
+        services.actions().crateOpener((player, crateId) -> {
+            var crate = services.crates().get(crateId);
+            if (crate != null) services.openService().attempt(player, crate, null, false);
+        });
+
         getServer().getPluginManager().registerEvents(new MenuListener(), this);
         getServer().getPluginManager().registerEvents(new ChatPrompt(), this);
         getServer().getPluginManager().registerEvents(services.players(), this);
+        getServer().getPluginManager().registerEvents(services.placements(), this);
+        getServer().getPluginManager().registerEvents(
+                new com.nocrates.crate.CrateClickListener(services.placements()), this);
+
+        var command = getCommand("crates");
+        if (command != null) {
+            var executor = new com.nocrates.command.CratesCommand();
+            command.setExecutor(executor);
+            command.setTabCompleter(executor);
+        }
+        if (Hooks.papi()) {
+            new com.nocrates.hook.PapiExpansion().register();
+        }
+
+        // World data becomes available after all plugins load.
+        Scheduling.run(this, null, () -> {
+            services.placements().rebuild();
+            for (var crate : services.crates().all()) services.winLimits().warm(crate.id());
+        });
 
         // Periodic dirty-data flush (every 5 minutes).
         flushTask = Scheduling.asyncTimer(this, 20L * 300, 20L * 300, services.players()::flushDirty);
@@ -70,6 +106,7 @@ public final class NoCratesPlugin extends JavaPlugin {
     public void onDisable() {
         if (flushTask != null) flushTask.cancel();
         if (services != null) {
+            if (services.placements() != null) services.placements().shutdown();
             if (services.players() != null) services.players().flushAllSync();
             if (services.dataStore() != null) services.dataStore().close();
             if (services.actionLogger() != null) services.actionLogger().close();

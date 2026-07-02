@@ -1,0 +1,12 @@
+# Keys are first-class: one key can open many crates, one crate can require several keys
+# (see the crate file's "keys:" list). virtual: true disables the physical item entirely.
+keys:
+  vote:
+    virtual: false
+    item:
+      material: TRIPWIRE_HOOK
+      name: "<yellow>Vote Key"
+      lore:
+        - "<gray>Opens the <white>Vote Crate</white>"
+        - "<gray>Get keys by voting!"
+      glow: true
