@@ -92,8 +92,17 @@ public final class NoCratesPlugin extends JavaPlugin {
             new com.nocrates.hook.PapiExpansion().register();
         }
 
+        com.nocrates.editor.EditorHub.register();
+        com.nocrates.migrate.Migrations.registerDefaults();
+
         this.modules = new com.nocrates.module.ModuleManager(this, new com.nocrates.module.ApiImpl());
         modules.enableAll();
+
+        // bStats: 0 disables until a plugin id is registered on bstats.org.
+        final int bstatsId = 0;
+        if (config.metrics() && bstatsId > 0) {
+            new org.bstats.bukkit.Metrics(this, bstatsId);
+        }
 
         // World data becomes available after all plugins load.
         Scheduling.run(this, null, () -> {

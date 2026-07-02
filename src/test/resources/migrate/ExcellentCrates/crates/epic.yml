@@ -1,0 +1,24 @@
+Name: '&6&lEpic Crate'
+Rewards:
+  List:
+    money:
+      Name: '&e$1000'
+      Weight: 60.0
+      Preview:
+        Material: SUNFLOWER
+      Commands:
+        - 'eco give %player% 1000'
+    gear:
+      Name: '&bDiamond Sword'
+      Weight: 25.0
+      Preview:
+        Material: DIAMOND_SWORD
+      Items:
+        - 'serialized-blob=='
+    rank:
+      Name: '&6VIP'
+      Weight: 5.0
+      Preview:
+        Material: NETHER_STAR
+      Commands:
+        - 'lp user %player% parent add vip'

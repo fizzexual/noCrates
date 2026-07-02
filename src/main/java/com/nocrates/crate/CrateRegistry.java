@@ -64,6 +64,12 @@ public final class CrateRegistry implements Reloadable {
         return crate;
     }
 
+    /** Registers an externally built crate (importers) and writes its file. */
+    public void put(Crate crate) {
+        crates.put(crate.id(), crate);
+        save(crate);
+    }
+
     public Crate clone(Crate source, String newId) {
         YamlConfiguration yml = new YamlConfiguration();
         CrateSerializer.write(source, yml);
