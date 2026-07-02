@@ -91,12 +91,18 @@ public final class RaritiesModule extends Addon implements Listener {
                 .map(r -> r.toLowerCase(Locale.ROOT)).toList();
         Reward current = event.outcome().get(0);
         if (current.rarity() != null && guaranteed.contains(current.rarity().toLowerCase(Locale.ROOT))) return;
+        var services = com.nocrates.core.Services.get();
+        var data = services.players().of(event.player());
         List<Reward> candidates = new ArrayList<>();
         for (Reward reward : event.crate().rewards().values()) {
-            if (reward.rarity() != null && guaranteed.contains(reward.rarity().toLowerCase(Locale.ROOT))
-                    && Weights.of(reward) > 0) {
-                candidates.add(reward);
+            if (reward.rarity() == null || !guaranteed.contains(reward.rarity().toLowerCase(Locale.ROOT))) continue;
+            if (Weights.of(reward) <= 0 || reward.always()) continue;
+            // respect win limits/permissions: never force a reward past its cap
+            if (!services.openService().isAllowed(event.player(), data, event.crate(), reward)
+                    && !reward.alternative().enabled()) {
+                continue;
             }
+            candidates.add(reward);
         }
         if (candidates.isEmpty()) return;
         Reward forced = roller.roll(candidates, Weights::of);

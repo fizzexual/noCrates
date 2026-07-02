@@ -56,7 +56,7 @@ public final class NoCratesPlugin extends JavaPlugin {
         services.reloads().register(services.menus());
         services.actions(new Actions(this));
         services.dataStore(createDataStore(config));
-        services.players(new PlayerCache(services.dataStore()));
+        services.players(new PlayerCache(this, services.dataStore()));
         services.actionLogger(new ActionLogger(this, config));
 
         services.keys(new com.nocrates.key.KeyRegistry(this));
@@ -79,6 +79,7 @@ public final class NoCratesPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new MenuListener(), this);
         getServer().getPluginManager().registerEvents(new ChatPrompt(), this);
+        getServer().getPluginManager().registerEvents(new com.nocrates.animation.AnimationGuards(), this);
         getServer().getPluginManager().registerEvents(services.players(), this);
         getServer().getPluginManager().registerEvents(services.placements(), this);
         getServer().getPluginManager().registerEvents(
@@ -127,6 +128,7 @@ public final class NoCratesPlugin extends JavaPlugin {
         if (flushTask != null) flushTask.cancel();
         if (idleEffects != null) idleEffects.stop();
         if (modules != null) modules.disableAll();
+        com.nocrates.animation.AnimationGuards.sweepLeftovers();
         if (services != null) {
             if (services.placements() != null) services.placements().shutdown();
             if (services.players() != null) services.players().flushAllSync();

@@ -72,15 +72,18 @@ public final class RewardGrant {
     }
 
     private static void giveItems(Player player, Crate crate, Reward reward, List<ItemSpec> items) {
+        // Decide claim-vs-deliver BEFORE handing anything over. Delivering part of a
+        // reward and then storing the whole reward as a claim would duplicate the
+        // delivered part (and addItem mutates its argument, so post-hoc compensation
+        // removes the wrong amount). Conservative check: one empty slot per item.
+        if (overflowHandler != null && emptySlots(player) < items.size()
+                && overflowHandler.store(player, crate, reward)) {
+            return;
+        }
         for (ItemSpec spec : items) {
             ItemStack stack = spec.build();
             var leftover = player.getInventory().addItem(stack);
             if (leftover.isEmpty()) continue;
-            if (overflowHandler != null && overflowHandler.store(player, crate, reward)) {
-                // Remove what was partially added; the claim module stores the whole reward.
-                player.getInventory().removeItem(stack);
-                return;
-            }
             Services.get().lang().send(player, "open-inventory-full");
             for (ItemStack extra : leftover.values()) {
                 player.getWorld().dropItemNaturally(player.getLocation(), extra);
@@ -88,11 +91,23 @@ public final class RewardGrant {
         }
     }
 
+    private static int emptySlots(Player player) {
+        int empty = 0;
+        for (ItemStack item : player.getInventory().getStorageContents()) {
+            if (item == null || item.getType().isAir()) empty++;
+        }
+        return empty;
+    }
+
     private static void runCommands(Player player, List<String> commands) {
         for (String command : commands) {
             String cmd = Hooks.papiApply(player, command.replace("%player%", player.getName()));
             if (cmd.startsWith("/")) cmd = cmd.substring(1);
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+            final String run = cmd;
+            // Console dispatch belongs on the global/main thread (grants may arrive
+            // from a crate's region thread on Folia).
+            com.nocrates.compat.Scheduling.run(Services.get().plugin(), null, () ->
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), run));
         }
     }
 

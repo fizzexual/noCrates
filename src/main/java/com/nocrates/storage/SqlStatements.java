@@ -18,6 +18,16 @@ final class SqlStatements {
         };
     }
 
+    /** Atomic +1 on the global win counter. */
+    static String incrementGlobalWin(String p, boolean mysql) {
+        if (mysql) {
+            return "INSERT INTO " + p + "global_wins (crate, reward, count, cooldown_until) VALUES (?,?,1,0) "
+                    + "ON DUPLICATE KEY UPDATE count = count + 1";
+        }
+        return "INSERT INTO " + p + "global_wins (crate, reward, count, cooldown_until) VALUES (?,?,1,0) "
+                + "ON CONFLICT(crate, reward) DO UPDATE SET count = count + 1";
+    }
+
     static String upsertGlobalWin(String p, boolean mysql) {
         if (mysql) {
             return "INSERT INTO " + p + "global_wins (crate, reward, count, cooldown_until) VALUES (?,?,?,?) "

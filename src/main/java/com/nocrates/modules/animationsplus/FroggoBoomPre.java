@@ -26,6 +26,7 @@ public final class FroggoBoomPre implements PreOpenAnimation {
             f.setInvulnerable(true);
             f.setPersistent(false);
             f.setSilent(true);
+            com.nocrates.animation.Displays.tag(f);
         });
         ctx.onPhaseCleanup(frog::remove);
         long hopAt = duration / 3;

@@ -238,6 +238,7 @@ public final class CrateEditor extends Menu {
         set(53, new MenuItem(EditorIcons.button(Material.LAVA_BUCKET, "Delete crate",
                 "Type the crate id in chat to confirm."), e -> prompt(input -> {
             if (input.equalsIgnoreCase(crate.id())) {
+                com.nocrates.menu.Menu.closeAll();
                 Services.get().crates().delete(crate.id());
                 Services.get().placements().rebuild();
                 Services.get().lang().send(viewer, "crate-deleted",

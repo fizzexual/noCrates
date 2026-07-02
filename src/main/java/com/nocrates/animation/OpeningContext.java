@@ -90,9 +90,25 @@ public final class OpeningContext {
         cleanups.add(cleanup);
     }
 
+    /** Current guard value; pair with {@link #phaseDoneIf(int)} to bind a completion to its phase. */
+    public int guard() {
+        return phaseGuard.get();
+    }
+
+    /**
+     * Phase-bound completion: only advances if no one else (watchdog, another timer)
+     * advanced the phase since {@code snapshot} was taken. Prevents a straggling timer
+     * from a force-ended phase chopping the NEXT phase short.
+     */
+    public void phaseDoneIf(int snapshot) {
+        if (phaseGuard.get() != snapshot) return;
+        phaseDone();
+    }
+
     /** Advances PRE -> POST -> DISPLAY -> completion; safe to call once per phase. */
     public void phaseDone() {
         int expected = phase.ordinal();
+        if (expected >= Phase.DONE.ordinal()) return;
         if (!phaseGuard.compareAndSet(expected, expected + 1)) return;
         for (Runnable cleanup : cleanups) {
             try {
@@ -107,13 +123,19 @@ public final class OpeningContext {
             default -> Phase.DONE;
         };
         phase = next;
-        Scheduling.run(plugin, anchor(), () -> {
-            if (next == Phase.DONE) {
-                onComplete.run();
-            } else if (phaseRunner != null) {
-                phaseRunner.accept(next);
+        if (next == Phase.DONE) {
+            // completion touches the PLAYER (inventory, menus) — run on their thread;
+            // if they logged out, grantAll()'s offline path handles it, so run globally.
+            if (player.isOnline()) {
+                Scheduling.entity(plugin, player, onComplete);
+            } else {
+                Scheduling.run(plugin, null, onComplete);
             }
-        });
+        } else {
+            Scheduling.run(plugin, anchor(), () -> {
+                if (phaseRunner != null) phaseRunner.accept(next);
+            });
+        }
     }
 
     /** Watchdog: force-advance if the given phase is still running after the timeout. */

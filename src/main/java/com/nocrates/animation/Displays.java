@@ -46,6 +46,11 @@ public final class Displays {
         return display;
     }
 
+    /** Tags any animation prop entity (mobs, fireworks) for damage-guards and sweeps. */
+    public static void tag(org.bukkit.entity.Entity entity) {
+        entity.getPersistentDataContainer().set(PDC_TAG, PersistentDataType.STRING, "1");
+    }
+
     /** Spins an item display by updating its yaw transformation. */
     public static void spin(ItemDisplay display, float degreesPerCall) {
         Transformation t = display.getTransformation();

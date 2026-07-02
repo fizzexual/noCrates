@@ -26,7 +26,7 @@
 
 ## ✨ Highlights
 
-- 🎬 **Cinematic openings** — every crate chains three independently chosen phases (*pre-open → post-open → reward display*) from a pool of **28 animations**: lightning strikes, sonic booms, black holes, orbiting reward reels, a frog that cannonballs into your crate, beacon light beams, and CS:GO reels in-world (horizontal *and* vertical) plus a GUI spinner. Mix them into hundreds of combinations — per crate, in-game, **with live right-click previews in the editor**.
+- 🎬 **Cinematic openings** — every crate chains three independently chosen phases (*pre-open → post-open → reward display*) from a pool of **56 animations**: meteors, supernovas, thunderstorms, DNA helixes, unfolding wings, black holes, galaxies, auroras, a frog that cannonballs into your crate, and CS:GO reels in-world (horizontal *and* vertical) plus a GUI spinner. Thousands of combinations — per crate, in-game, **with live right-click previews in the editor**.
 - 🌀 **Idle auras** — crates glow around the clock with **15 parametric particle shapes** (spirals, stars, astroids, flowers, pulses, helixes, spinning hearts…) in any particle and any color, built with a point-and-click wizard that previews each effect at your feet.
 - 🔑 **Keys done right** — keys are first-class objects linked to crates many-to-many with per-link *amounts* and *consumption priority*. Virtual (dupe-proof) and physical keys, key payments between players, and keys that **guarantee a rarity tier**.
 - 🎁 **A reward engine with teeth** — multiple win-items + commands per reward, per-player *and* global win limits with cooldowns, permission-restricted rewards with automatic **alternative rewards**, `always` rewards granted on **every** open (lootbox "guaranteed items"), broadcast/virtual/shared rewards, and up to **30 rewards per opening**.
@@ -55,11 +55,11 @@ Toggle any of them in `modules.yml` — no extra downloads, no paywalls.
 
 Every opening is `pre-open → post-open → reward-display`, each phase picked independently:
 
-| Phase | Built-in choices |
+| Phase | Built-in choices (56 total) |
 |---|---|
-| **Pre-open** | `DEFAULT` `CRACK` `LIGHTNING` `KEY_OPENER` `FIRE` `BLASTING` `SONIC_BOOM` `RAINBOW` `CYCLONE_HEART` `FROGGO_BOOM` `CHICKEN_JOCKEY` |
-| **Post-open** | `BALL` `SWIRL` `FIRE` `COMPACT` `ROTATING_HEAD` `CSGO` `PHYSICAL_CSGO` `ORBIT_ROULETTE` `ASTRO_BURST` `BLACK_HOLE` |
-| **Reward display** | `DEFAULT` `BEAM` `HELIX` `SMOKE_SPIRAL` `FIRE_SPIRAL` `PHYSICAL_ITEM` `FIREWORK` `GUI_CSGO` `CHEST_HUNT` |
+| **Pre-open** (20) | `DEFAULT` `CRACK` `LIGHTNING` `KEY_OPENER` `FIRE` `BLASTING` `SONIC_BOOM` `RAINBOW` `CYCLONE_HEART` `FROGGO_BOOM` `CHICKEN_JOCKEY` `VORTEX` `THUNDER_STORM` `METEOR` `GLITCH` `HEARTBEAT` `CAGE` `RUNES` `SNOW_STORM` `DRAGON_BREATH` |
+| **Post-open** (19) | `BALL` `SWIRL` `FIRE` `COMPACT` `ROTATING_HEAD` `CSGO` `PHYSICAL_CSGO` `ORBIT_ROULETTE` `ASTRO_BURST` `BLACK_HOLE` `SUPERNOVA` `FOUNTAIN` `DNA` `WINGS` `SHOCKWAVE` `PILLARS` `GEYSER` `COMET_RING` `STARFALL` |
+| **Reward display** (17) | `DEFAULT` `BEAM` `HELIX` `SMOKE_SPIRAL` `FIRE_SPIRAL` `PHYSICAL_ITEM` `FIREWORK` `GUI_CSGO` `CHEST_HUNT` `GALAXY` `PODIUM` `TORNADO` `AURORA` `PRISM` `ECLIPSE` `LANTERNS` `CROWN` |
 
 Timings are per-phase and per-crate; a watchdog force-completes any stuck phase so **an animation bug can never eat a reward**. Everything is display-entity and particle based — no NMS.
 

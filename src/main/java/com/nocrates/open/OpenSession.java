@@ -58,7 +58,7 @@ public final class OpenSession {
     }
 
     public boolean alternative(int index) {
-        return useAlternative[index];
+        return index < useAlternative.length && useAlternative[index];
     }
 
     public void replaceOutcome(int index, Reward reward, boolean alternative) {
@@ -82,14 +82,50 @@ public final class OpenSession {
     public void grantAll() {
         if (!granted.compareAndSet(false, true)) return;
         var services = Services.get();
+        if (!player.isOnline()) {
+            grantOffline(services);
+            release();
+            return;
+        }
         var winLimits = services.winLimits();
         var data = services.players().of(player);
         for (int i = 0; i < outcome.size(); i++) {
             Reward reward = outcome.get(i);
-            if (!useAlternative[i]) winLimits.record(data, crate, reward);
-            RewardGrant.grant(player, crate, reward, useAlternative[i]);
+            if (!alternative(i)) winLimits.record(data, crate, reward);
+            RewardGrant.grant(player, crate, reward, alternative(i));
         }
         release();
+    }
+
+    /**
+     * The player quit mid-animation: never touch their (gone) inventory or the player
+     * cache — merge wins into stored data, run console commands, and stash item
+     * rewards as claim rows so nothing is lost or wiped.
+     */
+    private void grantOffline(com.nocrates.core.Services services) {
+        java.util.UUID id = player.getUniqueId();
+        long now = java.time.Instant.now().getEpochSecond();
+        for (int i = 0; i < outcome.size(); i++) {
+            Reward reward = outcome.get(i);
+            boolean alt = alternative(i);
+            final Reward target = reward;
+            services.players().withOffline(id, data -> {
+                if (!alt) services.winLimits().record(data, crate, target);
+                if (!alt && !target.virtualReward() && !target.winItems().isEmpty()) {
+                    data.addClaim(crate.id() + ";" + target.id() + ";" + now);
+                }
+            });
+            java.util.List<String> commands = alt && reward.alternative().enabled()
+                    ? reward.alternative().commands() : reward.winCommands();
+            for (String command : commands) {
+                String cmd = command.replace("%player%", player.getName());
+                if (cmd.startsWith("/")) cmd = cmd.substring(1);
+                final String run = cmd;
+                com.nocrates.compat.Scheduling.run(services.plugin(), null, () ->
+                        org.bukkit.Bukkit.dispatchCommand(org.bukkit.Bukkit.getConsoleSender(), run));
+            }
+            services.actionLogger().win(player.getName(), crate.id(), reward.id() + " (offline)");
+        }
     }
 
     /** Releases the placement lock and closes the lid without granting (aborts). */

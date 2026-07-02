@@ -141,6 +141,8 @@ public final class CratesCommand implements TabExecutor {
     private void reload(CommandSender sender) {
         if (denied(sender, "nocrates.command.reload")) return;
         var services = Services.get();
+        // open editors hold soon-to-be-stale crate objects — close them first
+        com.nocrates.menu.Menu.closeAll();
         services.config().reload();
         services.lang().load(services.config().language());
         services.keys().reload();
@@ -222,6 +224,7 @@ public final class CratesCommand implements TabExecutor {
         var services = Services.get();
         Crate crate = crateOrMsg(sender, args[0]);
         if (crate == null) return;
+        com.nocrates.menu.Menu.closeAll();
         services.crates().delete(crate.id());
         services.placements().rebuild();
         services.lang().send(sender, "crate-deleted", Placeholder.unparsed("crate", crate.id()));
@@ -340,7 +343,8 @@ public final class CratesCommand implements TabExecutor {
         for (Player target : targets) {
             Reward reward;
             if (random) {
-                var rolled = services.openService().rollOutcome(target, crate, 1);
+                // admin gift, not an opening: never trips guaranteed-win milestones
+                var rolled = services.openService().rollOutcome(target, crate, 1, false);
                 if (rolled == null) continue;
                 reward = rolled.rewards().get(0);
             } else {
@@ -387,8 +391,14 @@ public final class CratesCommand implements TabExecutor {
                 switch (sub) {
                     case "give" -> {
                         if (physical && online != null && !key.virtual()) {
-                            online.getInventory().addItem(key.physical(amount)).values()
-                                    .forEach(left -> online.getWorld().dropItemNaturally(online.getLocation(), left));
+                            // stacks cap at 64 — split large gives instead of silently clamping
+                            int remaining = amount;
+                            while (remaining > 0) {
+                                int stack = Math.min(64, remaining);
+                                remaining -= stack;
+                                online.getInventory().addItem(key.physical(stack)).values()
+                                        .forEach(left -> online.getWorld().dropItemNaturally(online.getLocation(), left));
+                            }
                         } else {
                             services.keyService().give(id, key.id(), amount);
                         }
@@ -403,8 +413,8 @@ public final class CratesCommand implements TabExecutor {
                         }
                     }
                     case "take" -> {
-                        services.keyService().set(id, key.id(),
-                                Math.max(0, (online != null ? services.players().of(online).keys(key.id()) : amount) - amount));
+                        // delta, never absolute: works identically online and offline
+                        services.players().withOffline(id, data -> data.addKeys(key.id(), -amount));
                         lang.send(sender, "key-taken",
                                 Placeholder.unparsed("amount", String.valueOf(amount)),
                                 Placeholder.unparsed("key", key.id()),

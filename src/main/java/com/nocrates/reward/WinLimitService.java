@@ -23,12 +23,20 @@ public final class WinLimitService {
         this.store = store;
     }
 
-    /** Pre-warms the global caches; call at startup/reload for every crate. */
+    /**
+     * Pre-warms the global caches; call at startup/reload for every crate. Values are
+     * MAX-merged into whatever the cache accumulated meanwhile so wins recorded during
+     * the async window are never discarded.
+     */
     public void warm(String crateId) {
-        store.globalWins(crateId).thenAccept(counts ->
-                globalCounts.put(crateId, new ConcurrentHashMap<>(counts)));
-        store.globalWinCooldowns(crateId).thenAccept(cds ->
-                globalCooldowns.put(crateId, new ConcurrentHashMap<>(cds)));
+        store.globalWins(crateId).thenAccept(counts -> {
+            Map<String, Integer> cached = globalCounts.computeIfAbsent(crateId, k -> new ConcurrentHashMap<>());
+            counts.forEach((reward, dbCount) -> cached.merge(reward, dbCount, Math::max));
+        });
+        store.globalWinCooldowns(crateId).thenAccept(cds -> {
+            Map<String, Long> cached = globalCooldowns.computeIfAbsent(crateId, k -> new ConcurrentHashMap<>());
+            cds.forEach((reward, until) -> cached.merge(reward, until, Math::max));
+        });
     }
 
     public boolean allows(PlayerData player, Crate crate, Reward reward) {
@@ -60,16 +68,18 @@ public final class WinLimitService {
         }
         Map<String, Integer> counts = globalCounts.computeIfAbsent(crate.id(), k -> new ConcurrentHashMap<>());
         int count = counts.merge(reward.id(), 1, Integer::sum);
-        long cooldownUntil = 0;
         WinLimit gl = reward.globalLimit();
         if (gl.cooldownSeconds() > 0 && !gl.unlimited() && count >= gl.max()) {
-            cooldownUntil = now + gl.cooldownSeconds();
+            long cooldownUntil = now + gl.cooldownSeconds();
             counts.put(reward.id(), 0);
-            count = 0;
             globalCooldowns.computeIfAbsent(crate.id(), k -> new ConcurrentHashMap<>())
                     .put(reward.id(), cooldownUntil);
+            // absolute write is intended here: the window closed, counter restarts
+            store.setGlobalWin(crate.id(), reward.id(), 0, cooldownUntil);
+        } else {
+            // delta write: never overwrites counts recorded elsewhere (warm race, other servers)
+            store.incrGlobalWin(crate.id(), reward.id());
         }
-        store.setGlobalWin(crate.id(), reward.id(), count, cooldownUntil);
     }
 
     public void resetGlobal(String crateId) {

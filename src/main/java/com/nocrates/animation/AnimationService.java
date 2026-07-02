@@ -99,7 +99,9 @@ public final class AnimationService {
                 }
             }
         });
-        ctx.watchdog(OpeningContext.Phase.PRE, 20L * 20);
+        // watchdogs scale with the configured phase length so a long (legit) phase is
+        // never force-ended while it is still playing
+        ctx.watchdog(OpeningContext.Phase.PRE, crate.animation().preDelayTicks() + 400L);
         PreOpenAnimation animation = pre.get(crate.animation().preOpen().toUpperCase(Locale.ROOT));
         if (animation == null) {
             ctx.phaseDone();
@@ -110,7 +112,7 @@ public final class AnimationService {
     }
 
     private void runPost(OpeningContext ctx) {
-        ctx.watchdog(OpeningContext.Phase.POST, 20L * 20);
+        ctx.watchdog(OpeningContext.Phase.POST, ctx.crate().animation().postDelayTicks() + 400L);
         PostOpenAnimation animation = post.get(ctx.crate().animation().postOpen().toUpperCase(Locale.ROOT));
         if (animation == null) {
             ctx.phaseDone();
@@ -120,7 +122,9 @@ public final class AnimationService {
     }
 
     private void runDisplay(OpeningContext ctx) {
-        ctx.watchdog(OpeningContext.Phase.DISPLAY, 20L * 30);
+        // chest-hunt style displays can legitimately run for minutes (player-paced)
+        long timeout = Math.max(ctx.crate().animation().displayDurationTicks() + 400L, 20L * 90);
+        ctx.watchdog(OpeningContext.Phase.DISPLAY, timeout);
         RewardDisplayAnimation animation = display.get(ctx.crate().animation().rewardDisplay().toUpperCase(Locale.ROOT));
         if (animation == null) {
             ctx.phaseDone();

@@ -97,7 +97,8 @@ final class ChestHuntSession {
             reward = ctx.outcome().get(0);
         } else {
             var services = Services.get();
-            var rolled = services.openService().rollOutcome(player, ctx.crate(), 1);
+            // bonus picks are not openings — they must not trip guaranteed-win pity
+            var rolled = services.openService().rollOutcome(player, ctx.crate(), 1, false);
             reward = rolled == null ? null : rolled.rewards().get(0);
             if (reward != null) {
                 boolean alternative = rolled.alternative()[0];

@@ -140,10 +140,28 @@ public final class Compat {
         at.getWorld().playSound(at, soundKey(sound), volume, pitch);
     }
 
+    private static final Map<String, String> SOUND_KEYS = new ConcurrentHashMap<>();
+
+    /**
+     * Enum-style names resolve through the Sound registry (reflective, so the 1.21.3
+     * enum→interface change can't break us) because vanilla keys keep underscores
+     * inside segments (block.note_block.chime) — naive '_'→'.' conversion is wrong.
+     */
     static String soundKey(String sound) {
         String s = sound.trim();
         if (s.indexOf(':') >= 0 || s.indexOf('.') >= 0) return s.toLowerCase(Locale.ROOT);
-        return s.toLowerCase(Locale.ROOT).replace('_', '.');
+        String upper = s.toUpperCase(Locale.ROOT);
+        return SOUND_KEYS.computeIfAbsent(upper, name -> {
+            try {
+                Class<?> soundClass = Class.forName("org.bukkit.Sound");
+                Object value = soundClass.getMethod("valueOf", String.class).invoke(null, name);
+                Object key = soundClass.getMethod("getKey").invoke(value);
+                return key.toString();
+            } catch (ReflectiveOperationException e) {
+                // unknown enum name: last-resort conversion (correct for single-word segments)
+                return name.toLowerCase(Locale.ROOT).replace('_', '.');
+            }
+        });
     }
 
     private static final String[][] POTION_RENAMES = {

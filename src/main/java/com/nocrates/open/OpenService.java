@@ -98,19 +98,28 @@ public final class OpenService {
             unlock(placement, crate);
             return;
         }
+        // listeners may have replaced rewards (rarity guarantees) — recompute flags
+        recomputeAlternatives(player, crate, rolled);
 
-        if (!crate.keys().isEmpty() && !services.keyService().consume(player, crate.keys())) {
-            lang.send(player, "open-no-key", Placeholder.parsed("key", keyDisplayName(crate)));
-            unlock(placement, crate);
-            return;
-        }
+        // money first, keys second: a failed key consume can refund money, but a
+        // failed withdrawal could not restore already-consumed physical keys.
         double cost = crate.open().cost();
+        boolean charged = false;
         if (cost > 0 && VaultHook.ready()) {
             if (!VaultHook.withdraw(player, cost)) {
                 lang.send(player, "open-not-enough-money", Placeholder.unparsed("cost", VaultHook.format(cost)));
                 unlock(placement, crate);
                 return;
             }
+            charged = true;
+        }
+        if (!crate.keys().isEmpty() && !services.keyService().consume(player, crate.keys())) {
+            if (charged) VaultHook.deposit(player, cost);
+            lang.send(player, "open-no-key", Placeholder.parsed("key", keyDisplayName(crate)));
+            unlock(placement, crate);
+            return;
+        }
+        if (charged) {
             lang.send(player, "open-cost-charged", Placeholder.unparsed("cost", VaultHook.format(cost)));
         }
 
@@ -119,7 +128,6 @@ public final class OpenService {
             data.setCooldown(crate.id(), Instant.now().getEpochSecond() + crate.open().cooldownSeconds());
         }
         data.incrOpens(crate.id());
-        if (rolled.milestoneIndex >= 0) data.setMilestoneIndex(crate.id(), rolled.milestoneIndex);
         if (rolled.guaranteed) {
             lang.send(player, "open-guaranteed",
                     Placeholder.parsed("reward", rolled.rewards.get(0).displayName()));
@@ -160,6 +168,16 @@ public final class OpenService {
      * (the lootbox "guaranteed items" section).
      */
     public Rolled rollOutcome(Player player, Crate crate, int count) {
+        return rollOutcome(player, crate, count, true);
+    }
+
+    /**
+     * {@code opening=false} (rerolls, chest-hunt bonus picks, admin gifts) skips the
+     * guaranteed-win evaluation entirely — pity progress belongs to real openings only.
+     * When a milestone fires, its pointer is persisted HERE so every grant path
+     * (normal, mass-open, lootboxes) advances it exactly once.
+     */
+    public Rolled rollOutcome(Player player, Crate crate, int count, boolean opening) {
         var services = Services.get();
         PlayerData data = services.players().of(player);
 
@@ -181,7 +199,7 @@ public final class OpenService {
         boolean guaranteed = false;
         int milestoneIndex = -1;
 
-        if (crate.guaranteedEnabled() && !crate.milestones().isEmpty()) {
+        if (opening && crate.guaranteedEnabled() && !crate.milestones().isEmpty()) {
             int nextTotal = data.opens(crate.id()) + 1;
             GuaranteedWin.Result result = GuaranteedWin.check(crate.guaranteedMode(), crate.milestones(),
                     nextTotal, data.milestoneIndex(crate.id()), rng);
@@ -192,6 +210,8 @@ public final class OpenService {
                     guaranteed = true;
                 }
                 milestoneIndex = result.nextIndex();
+                // persist immediately: every grant path advances the pointer exactly once
+                data.setMilestoneIndex(crate.id(), milestoneIndex);
             }
         }
         while (!pool.isEmpty() && rewards.size() < count) {
@@ -216,12 +236,21 @@ public final class OpenService {
 
     /** One replacement roll for the reroll feature; excludes the previous reward. */
     public Reward rollReplacement(Player player, Crate crate, Reward exclude) {
-        Rolled rolled = rollOutcome(player, crate, 1);
+        Rolled rolled = rollOutcome(player, crate, 1, false);
         if (rolled == null) return null;
         if (rolled.rewards.get(0) != exclude || crate.rewards().size() <= 1) return rolled.rewards.get(0);
         // one retry to avoid handing back the identical reward too often
-        Rolled retry = rollOutcome(player, crate, 1);
+        Rolled retry = rollOutcome(player, crate, 1, false);
         return retry == null ? rolled.rewards.get(0) : retry.rewards.get(0);
+    }
+
+    /** Re-evaluates the alternative flags after event listeners possibly swapped rewards. */
+    public void recomputeAlternatives(Player player, Crate crate, Rolled rolled) {
+        PlayerData data = Services.get().players().of(player);
+        int limit = Math.min(rolled.rewards().size(), rolled.alternative().length);
+        for (int i = 0; i < limit; i++) {
+            rolled.alternative()[i] = !isAllowed(player, data, crate, rolled.rewards().get(i));
+        }
     }
 
     public boolean isAllowed(Player player, PlayerData data, Crate crate, Reward reward) {

@@ -145,7 +145,8 @@ public final class LootboxModule extends Addon implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onUse(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND) return;
+        // both hands: an off-hand lootbox must be intercepted too, otherwise vanilla
+        // places it as a plain block and the redeemable item is destroyed
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         ItemStack item = event.getItem();
         if (item == null) return;
@@ -156,9 +157,11 @@ public final class LootboxModule extends Addon implements Listener {
         // clicking an actual placed crate wins over the held lootbox
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null
                 && api().placements().at(event.getClickedBlock()) != null) {
+            event.setCancelled(true); // ...but never place the lootbox against it
             return;
         }
         event.setCancelled(true);
+        if (event.getHand() != EquipmentSlot.HAND && event.getHand() != EquipmentSlot.OFF_HAND) return;
         Player player = event.getPlayer();
         Crate crate = api().crates().get(crateId);
         if (crate == null) {
@@ -171,6 +174,14 @@ public final class LootboxModule extends Addon implements Listener {
     /** Consumes one box and instantly grants always-rewards + the random rolls. */
     private void redeem(Player player, Crate crate, ItemStack item) {
         var services = com.nocrates.core.Services.get();
+        if (!crate.enabled()) {
+            api().lang().send(player, "open-crate-disabled");
+            return;
+        }
+        if (crate.permissionRequired() && !player.hasPermission(crate.permission())) {
+            api().lang().send(player, "open-no-crate-permission");
+            return;
+        }
         var rolled = api().openService().rollOutcome(player, crate, crate.maxWinRewards());
         if (rolled == null) {
             api().lang().send(player, "open-nothing-available");
@@ -179,6 +190,7 @@ public final class LootboxModule extends Addon implements Listener {
         CrateOpenEvent event = new CrateOpenEvent(player, crate, rolled.rewards());
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
+        api().openService().recomputeAlternatives(player, crate, rolled);
 
         item.setAmount(item.getAmount() - 1);
         var data = api().players().of(player);
@@ -188,7 +200,7 @@ public final class LootboxModule extends Addon implements Listener {
         api().lang().send(player, "lootbox-opened", Placeholder.parsed("crate", crate.displayName()));
         for (int i = 0; i < rolled.rewards().size(); i++) {
             Reward reward = rolled.rewards().get(i);
-            boolean alternative = rolled.alternative()[i];
+            boolean alternative = i < rolled.alternative().length && rolled.alternative()[i];
             if (!alternative) services.winLimits().record(data, crate, reward);
             RewardGrant.grant(player, crate, reward, alternative, true);
             int amount = reward.winItems().isEmpty() ? 1 : reward.winItems().get(0).amount();
@@ -215,41 +227,90 @@ public final class LootboxModule extends Addon implements Listener {
                 .build();
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    /** Placed lootboxes currently mid-animation: locKey -> session (for guards + shutdown). */
+    private final java.util.Map<String, OpenSession> activePlacements = new java.util.concurrent.ConcurrentHashMap<>();
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlace(BlockPlaceEvent event) {
         ItemStack item = event.getItemInHand();
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
+        // a right-click lootbox must never end up placed as a plain block
+        if (meta.getPersistentDataContainer().has(PDC_LOOTBOX_RC, PersistentDataType.STRING)) {
+            event.setCancelled(true);
+            return;
+        }
         String crateId = meta.getPersistentDataContainer().get(PDC_LOOTBOX, PersistentDataType.STRING);
         if (crateId == null) return;
         Crate crate = api().crates().get(crateId);
-        if (crate == null) {
+        if (crate == null || !crate.enabled()) {
             event.setCancelled(true);
             return;
         }
         Player player = event.getPlayer();
         Block block = event.getBlockPlaced();
-        // Roll now (keyless by design); if nothing is available refund by cancelling.
+        Location blockLoc = block.getLocation();
+        Material placedType = block.getType();
+        // Defer one tick: if a later-priority handler (protection plugin) cancelled the
+        // place, the block is gone by then — no roll, no grant, box already refunded.
+        Scheduling.later(api().plugin(), blockLoc, 1, () -> {
+            if (blockLoc.getBlock().getType() != placedType) return;
+            startPlacedOpen(player, crate, blockLoc);
+        });
+    }
+
+    private void startPlacedOpen(Player player, Crate crate, Location blockLoc) {
         var rolled = api().openService().rollOutcome(player, crate, crate.maxWinRewards());
         if (rolled == null) {
             api().lang().send(player, "open-nothing-available");
-            event.setCancelled(true);
+            blockLoc.getBlock().setType(Material.AIR, false);
             return;
         }
+        CrateOpenEvent event = new CrateOpenEvent(player, crate, rolled.rewards());
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            blockLoc.getBlock().setType(Material.AIR, false);
+            return;
+        }
+        api().openService().recomputeAlternatives(player, crate, rolled);
         var data = api().players().of(player);
         data.incrOpens(crate.id());
         com.nocrates.core.Services.get().actionLogger().open(player.getName(), crate.id() + " (lootbox)");
-        CratePlacement temporary = new CratePlacement(crate, Loc.key(block));
+        String locKey = Loc.key(blockLoc);
+        CratePlacement temporary = new CratePlacement(crate, locKey);
         OpenSession session = new OpenSession(player, crate, null, false,
                 rolled.rewards(), rolled.alternative(), 0);
-        Location blockLoc = block.getLocation();
+        activePlacements.put(locKey, session);
         api().animations().play(player, crate, temporary, rolled.rewards(), false, () -> {
             session.grantAll();
+            activePlacements.remove(locKey);
             Scheduling.run(api().plugin(), blockLoc, () -> {
                 if (blockLoc.getBlock().getType() != Material.AIR) {
                     blockLoc.getBlock().setType(Material.AIR, false);
                 }
             });
         });
+    }
+
+    /** The placed box can't be mined mid-animation. */
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onBreak(org.bukkit.event.block.BlockBreakEvent event) {
+        if (activePlacements.containsKey(Loc.key(event.getBlock()))) event.setCancelled(true);
+    }
+
+    @Override
+    public void onDisable() {
+        // shutdown mid-animation: grant everything owed and clean the blocks up
+        for (var entry : new java.util.HashMap<>(activePlacements).entrySet()) {
+            entry.getValue().grantAll();
+            Location loc = Loc.parse(entry.getKey());
+            if (loc != null) {
+                try {
+                    loc.getBlock().setType(Material.AIR, false);
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        activePlacements.clear();
     }
 }

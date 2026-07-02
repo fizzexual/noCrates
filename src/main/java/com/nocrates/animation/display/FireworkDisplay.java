@@ -28,6 +28,7 @@ public final class FireworkDisplay extends ShowcaseBase implements RewardDisplay
     private void launch(Location at, OpeningContext ctx) {
         // World#spawn(Location, Class) is immune to the 1.20.5 EntityType renames.
         Firework firework = at.getWorld().spawn(at, Firework.class);
+        com.nocrates.animation.Displays.tag(firework); // damage-guarded cosmetic
         FireworkMeta meta = firework.getFireworkMeta();
         meta.addEffect(FireworkEffect.builder()
                 .with(FireworkEffect.Type.BURST)

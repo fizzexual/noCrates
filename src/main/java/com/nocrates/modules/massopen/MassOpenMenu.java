@@ -99,54 +99,72 @@ public final class MassOpenMenu extends Menu {
 
     private void massOpen(int times) {
         var services = Services.get();
+        // same gates as a normal open — mass-open must not be a side door
+        if (!crate.enabled()) {
+            services.lang().send(viewer, "open-crate-disabled");
+            return;
+        }
+        if (crate.permissionRequired() && !viewer.hasPermission(crate.permission())) {
+            services.lang().send(viewer, "open-no-crate-permission");
+            return;
+        }
+        var data = services.players().of(viewer);
+        long now = java.time.Instant.now().getEpochSecond();
+        if (data.cooldownUntil(crate.id()) > now) {
+            services.lang().send(viewer, "open-cooldown", Placeholder.unparsed("time",
+                    com.nocrates.text.Times.format(services.lang(), data.cooldownUntil(crate.id()) - now)));
+            return;
+        }
         if (times <= 0 || !services.keyService().has(viewer, scaled(times))) {
             services.lang().send(viewer, "massopen-no-keys",
                     Placeholder.unparsed("amount", String.valueOf(Math.max(1, times))));
             return;
         }
-        // Paid crates stay paid in bulk: charge cost * times up front.
-        double totalCost = crate.open().cost() * times;
-        if (totalCost > 0 && com.nocrates.hook.VaultHook.ready()) {
-            if (!com.nocrates.hook.VaultHook.withdraw(viewer, totalCost)) {
-                services.lang().send(viewer, "open-not-enough-money",
-                        Placeholder.unparsed("cost", com.nocrates.hook.VaultHook.format(totalCost)));
-                return;
-            }
-            services.lang().send(viewer, "open-cost-charged",
-                    Placeholder.unparsed("cost", com.nocrates.hook.VaultHook.format(totalCost)));
-        }
-        if (!services.keyService().consume(viewer, scaled(times))) {
-            // keys changed between check and consume (race) — refund the money
-            if (totalCost > 0 && com.nocrates.hook.VaultHook.ready()) {
-                com.nocrates.hook.VaultHook.deposit(viewer, totalCost);
-            }
-            services.lang().send(viewer, "massopen-no-keys",
-                    Placeholder.unparsed("amount", String.valueOf(Math.max(1, times))));
+        // money up front (refunded for opens that don't happen), keys PER OPEN so a
+        // mid-batch stop can never eat keys for openings that never occurred
+        double costPerOpen = crate.open().cost();
+        boolean charging = costPerOpen > 0 && com.nocrates.hook.VaultHook.ready();
+        if (charging && !com.nocrates.hook.VaultHook.withdraw(viewer, costPerOpen * times)) {
+            services.lang().send(viewer, "open-not-enough-money",
+                    Placeholder.unparsed("cost", com.nocrates.hook.VaultHook.format(costPerOpen * times)));
             return;
         }
         OpenService open = services.openService();
-        var data = services.players().of(viewer);
         Map<String, Integer> counts = new LinkedHashMap<>();
-        Map<String, Reward> byName = new LinkedHashMap<>();
+        int successful = 0;
         for (int i = 0; i < times; i++) {
             OpenService.Rolled rolled = open.rollOutcome(viewer, crate, crate.maxWinRewards());
             if (rolled == null) break;
             CrateOpenEvent event = new CrateOpenEvent(viewer, crate, rolled.rewards());
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) continue;
+            open.recomputeAlternatives(viewer, crate, rolled);
+            if (!services.keyService().consume(viewer, scaled(1))) break;
+            successful++;
             data.incrOpens(crate.id());
             for (int r = 0; r < rolled.rewards().size(); r++) {
                 Reward reward = rolled.rewards().get(r);
-                boolean alternative = rolled.alternative()[r];
+                boolean alternative = r < rolled.alternative().length && rolled.alternative()[r];
                 if (!alternative) services.winLimits().record(data, crate, reward);
                 RewardGrant.grant(viewer, crate, reward, alternative, true);
                 counts.merge(reward.displayName(), 1, Integer::sum);
-                byName.put(reward.displayName(), reward);
             }
         }
-        services.actionLogger().open(viewer.getName(), crate.id() + " x" + times);
+        if (charging) {
+            if (successful < times) {
+                com.nocrates.hook.VaultHook.deposit(viewer, costPerOpen * (times - successful));
+            }
+            if (successful > 0) {
+                services.lang().send(viewer, "open-cost-charged", Placeholder.unparsed("cost",
+                        com.nocrates.hook.VaultHook.format(costPerOpen * successful)));
+            }
+        }
+        if (successful > 0 && crate.open().cooldownSeconds() > 0) {
+            data.setCooldown(crate.id(), now + crate.open().cooldownSeconds());
+        }
+        services.actionLogger().open(viewer.getName(), crate.id() + " x" + successful);
         services.lang().send(viewer, "massopen-summary-header",
-                Placeholder.unparsed("amount", String.valueOf(times)),
+                Placeholder.unparsed("amount", String.valueOf(successful)),
                 Placeholder.parsed("crate", crate.displayName()));
         for (Map.Entry<String, Integer> line : counts.entrySet()) {
             services.lang().sendRaw(viewer, "massopen-summary-line",

@@ -46,9 +46,23 @@ public abstract class Menu implements InventoryHolder {
     /** (Re)draws content; called before opening and on refresh(). */
     protected abstract void draw();
 
+    /** viewer uuid -> the Menu they have open; used to close stale menus on reload. */
+    private static final java.util.Map<java.util.UUID, Menu> OPEN =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Closes every open plugin menu (e.g. before /crates reload swaps crate objects). */
+    public static void closeAll() {
+        for (java.util.UUID id : new java.util.ArrayList<>(OPEN.keySet())) {
+            var player = org.bukkit.Bukkit.getPlayer(id);
+            if (player != null) player.closeInventory();
+            OPEN.remove(id);
+        }
+    }
+
     public final void open() {
         draw();
         viewer.openInventory(inventory);
+        OPEN.put(viewer.getUniqueId(), this);
     }
 
     public final void refresh() {
@@ -96,6 +110,7 @@ public abstract class Menu implements InventoryHolder {
     }
 
     final void closed() {
+        OPEN.remove(viewer.getUniqueId(), this);
         onClose();
     }
 }

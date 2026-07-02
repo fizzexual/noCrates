@@ -106,6 +106,8 @@ public final class PlacementManager implements Listener {
 
     public CratePlacement attach(Crate crate, Block block) {
         String locKey = Loc.key(block);
+        // a block can belong to one crate only — detach any previous binding first
+        if (byLocation.containsKey(locKey)) detach(block);
         crate.locations().add(locKey);
         crates.save(crate);
         CratePlacement placement = new CratePlacement(crate, locKey);

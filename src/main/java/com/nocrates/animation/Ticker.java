@@ -11,7 +11,10 @@ public final class Ticker {
     }
 
     public static void run(OpeningContext ctx, long durationTicks, long period, IntConsumer body) {
-        run(ctx, durationTicks, period, body, ctx::phaseDone);
+        // Bind completion to the phase this ticker belongs to: if the watchdog already
+        // force-advanced it, this ticker's end must not chop the NEXT phase short.
+        int snapshot = ctx.guard();
+        run(ctx, durationTicks, period, body, () -> ctx.phaseDoneIf(snapshot));
     }
 
     public static void run(OpeningContext ctx, long durationTicks, long period, IntConsumer body, Runnable onEnd) {

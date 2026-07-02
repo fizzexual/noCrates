@@ -6,7 +6,7 @@
 
     <groupId>com.nocrates</groupId>
     <artifactId>noCrates</artifactId>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
     <packaging>jar</packaging>
     <name>noCrates</name>
     <description>Advanced crates plugin: 3-phase animations, idle particle shapes, linked keys, selective rewards, guaranteed-win, rerolls, modules/addons — one jar for MC 1.20-26.2.</description>

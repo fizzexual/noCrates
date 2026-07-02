@@ -37,6 +37,14 @@ public final class Scheduling {
 
     /** Runs on the thread owning {@code ctx} (Folia) or the main thread. Null ctx = global. */
     public static void run(Plugin plugin, Location ctx, Runnable r) {
+        // During onDisable the schedulers reject new tasks; run inline (best effort on Folia).
+        if (!plugin.isEnabled()) {
+            try {
+                r.run();
+            } catch (Exception ignored) {
+            }
+            return;
+        }
         if (FOLIA) {
             if (ctx != null) Bukkit.getRegionScheduler().run(plugin, ctx, t -> r.run());
             else Bukkit.getGlobalRegionScheduler().run(plugin, t -> r.run());

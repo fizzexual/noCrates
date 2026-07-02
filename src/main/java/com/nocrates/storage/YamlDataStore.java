@@ -47,7 +47,15 @@ public final class YamlDataStore implements DataStore {
             PlayerData data = new PlayerData(id);
             File file = new File(playerDir, id + ".yml");
             if (!file.isFile()) return data;
-            YamlConfiguration yml = YamlConfiguration.loadConfiguration(file);
+            YamlConfiguration yml = new YamlConfiguration();
+            try {
+                // Explicit load: a corrupt file must FAIL, not silently read as empty
+                // (callers would then save the emptiness over the player's real data).
+                yml.load(file);
+            } catch (Exception e) {
+                throw new java.util.concurrent.CompletionException(
+                        new java.io.IOException("Corrupt player file " + file.getName() + ": " + e.getMessage(), e));
+            }
             for (String scope : INT_SCOPES) {
                 ConfigurationSection s = yml.getConfigurationSection(scope);
                 if (s != null) for (String k : s.getKeys(false)) data.loadInt(scope, k, s.getInt(k));
@@ -129,6 +137,17 @@ public final class YamlDataStore implements DataStore {
                 globals.set("global-wins." + crateId + "." + rewardId + ".count", count);
                 globals.set("global-wins." + crateId + "." + rewardId + ".cooldown-until",
                         cooldownUntilEpochSec > 0 ? cooldownUntilEpochSec : null);
+                saveGlobals();
+            }
+        });
+    }
+
+    @Override
+    public void incrGlobalWin(String crateId, String rewardId) {
+        io.submit(() -> {
+            synchronized (globalsLock) {
+                String path = "global-wins." + crateId + "." + rewardId + ".count";
+                globals.set(path, globals.getInt(path, 0) + 1);
                 saveGlobals();
             }
         });

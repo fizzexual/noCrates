@@ -89,7 +89,9 @@ public final class GuiRoulette implements RewardDisplayAnimation {
 
         private void scheduleShift(int shiftIndex, int totalShifts) {
             long delay = delayFor(shiftIndex, totalShifts);
-            Scheduling.later(ctx.plugin(), null, delay, () -> {
+            // player-owned scheduling: inventory mutation must happen on the viewer's
+            // region thread on Folia, never on the global scheduler
+            Scheduling.entityLater(ctx.plugin(), viewer, delay, () -> {
                 if (finished) return;
                 if (!viewer.isOnline()) {
                     complete();
@@ -119,7 +121,7 @@ public final class GuiRoulette implements RewardDisplayAnimation {
             reel[4] = ctx.outcome().get(0);
             renderReel();
             Compat.play(viewer, "ENTITY_PLAYER_LEVELUP", 0.9f, 1.4f);
-            Scheduling.later(ctx.plugin(), null, 30, () -> {
+            Scheduling.entityLater(ctx.plugin(), viewer, 30, () -> {
                 if (!finished && viewer.isOnline()) viewer.closeInventory();
                 complete();
             });

@@ -33,9 +33,14 @@ public final class CrateClickListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
         if (event.getClickedBlock() == null) return;
-        if (event.getHand() != EquipmentSlot.HAND) return;
         CratePlacement placement = placements.at(event.getClickedBlock());
         if (placement == null) return;
+        // off-hand interactions against a crate are blocked too (no bucket dumps /
+        // block placement against the crate), but only the main hand opens it
+        if (event.getHand() != EquipmentSlot.HAND) {
+            event.setCancelled(true);
+            return;
+        }
         event.setCancelled(true);
         Player player = event.getPlayer();
         Crate crate = placement.crate();

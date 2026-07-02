@@ -91,6 +91,14 @@ public final class CrateRegistry implements Reloadable {
     }
 
     public void save(Crate crate) {
+        // Stale-object guard: an editor kept open across /crates reload (or a delete)
+        // holds an old instance — writing it would revert or resurrect the file.
+        Crate current = crates.get(crate.id());
+        if (current != crate) {
+            plugin.getLogger().warning("Ignored save of stale crate object '" + crate.id()
+                    + "' (reloaded or deleted while an editor was open).");
+            return;
+        }
         YamlConfiguration yml = new YamlConfiguration();
         CrateSerializer.write(crate, yml);
         try {

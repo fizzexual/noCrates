@@ -91,8 +91,11 @@ public final class Actions {
                 long seconds = parseLong(parts[1], 1);
                 int next = i + 1;
                 if (next < lines.size() && ctx.player().isOnline()) {
-                    Scheduling.later(ctx.plugin(), ctx.player().getLocation(), seconds * 20L,
-                            () -> runChain(ctx, lines, next));
+                    // follow the player, not the spot they stood on when the delay began
+                    Scheduling.entityLater(ctx.plugin(), ctx.player(), seconds * 20L,
+                            () -> {
+                                if (ctx.player().isOnline()) runChain(ctx, lines, next);
+                            });
                 }
                 return;
             }

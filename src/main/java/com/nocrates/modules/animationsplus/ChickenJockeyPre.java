@@ -26,6 +26,7 @@ public final class ChickenJockeyPre implements PreOpenAnimation {
             c.setAI(false);
             c.setInvulnerable(true);
             c.setPersistent(false);
+            com.nocrates.animation.Displays.tag(c);
         });
         Zombie rider = anchor.getWorld().spawn(spawnAt, Zombie.class, z -> {
             z.setBaby();
@@ -34,6 +35,7 @@ public final class ChickenJockeyPre implements PreOpenAnimation {
             z.setPersistent(false);
             z.setSilent(true);
             z.setShouldBurnInDay(false);
+            com.nocrates.animation.Displays.tag(z);
         });
         chicken.addPassenger(rider);
         ctx.onPhaseCleanup(chicken::remove);

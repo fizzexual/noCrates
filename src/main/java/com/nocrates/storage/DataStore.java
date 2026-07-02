@@ -19,6 +19,9 @@ public interface DataStore extends AutoCloseable {
 
     void setGlobalWin(String crateId, String rewardId, int count, long cooldownUntilEpochSec);
 
+    /** Atomically adds one to a reward's global win count (delta, multi-server safe). */
+    void incrGlobalWin(String crateId, String rewardId);
+
     /** rewardId -> cooldown-until epoch seconds. */
     CompletableFuture<Map<String, Long>> globalWinCooldowns(String crateId);
 

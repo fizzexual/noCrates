@@ -88,29 +88,50 @@ public final class SelectiveMenu extends Menu {
 
     private void pick(Reward reward) {
         var services = Services.get();
-        List<KeyLink> scaled = new ArrayList<>();
-        for (KeyLink link : crate.keys()) {
-            scaled.add(new KeyLink(link.keyId(), link.amount() * reward.selectiveCost(), link.priority()));
-        }
-        if (!scaled.isEmpty() && !services.keyService().consume(viewer, scaled)) {
-            services.lang().send(viewer, "selective-not-enough-keys",
-                    net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.unparsed(
-                            "amount", String.valueOf(reward.selectiveCost())));
-            return;
-        }
-        viewer.closeInventory();
         var data = services.players().of(viewer);
-        data.incrOpens(crate.id());
-        services.actionLogger().open(viewer.getName(), crate.id());
         // the chosen reward plus every always-reward (guaranteed items)
         List<Reward> outcome = new ArrayList<>(List.of(reward));
         for (Reward extra : crate.rewards().values()) {
             if (extra.always() && !outcome.contains(extra)) outcome.add(extra);
         }
         boolean[] alternative = new boolean[outcome.size()];
-        for (int i = 0; i < outcome.size(); i++) {
+
+        var event = new com.nocrates.api.events.CrateOpenEvent(viewer, crate, outcome);
+        org.bukkit.Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return;
+        for (int i = 0; i < outcome.size() && i < alternative.length; i++) {
             alternative[i] = !services.openService().isAllowed(viewer, data, crate, outcome.get(i));
         }
+
+        // money first (refundable), then the all-or-nothing key consume
+        double cost = crate.open().cost();
+        boolean charged = false;
+        if (cost > 0 && com.nocrates.hook.VaultHook.ready()) {
+            if (!com.nocrates.hook.VaultHook.withdraw(viewer, cost)) {
+                services.lang().send(viewer, "open-not-enough-money",
+                        net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.unparsed(
+                                "cost", com.nocrates.hook.VaultHook.format(cost)));
+                return;
+            }
+            charged = true;
+        }
+        List<KeyLink> scaled = new ArrayList<>();
+        for (KeyLink link : crate.keys()) {
+            scaled.add(new KeyLink(link.keyId(), link.amount() * reward.selectiveCost(), link.priority()));
+        }
+        if (!scaled.isEmpty() && !services.keyService().consume(viewer, scaled)) {
+            if (charged) com.nocrates.hook.VaultHook.deposit(viewer, cost);
+            services.lang().send(viewer, "selective-not-enough-keys",
+                    net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.unparsed(
+                            "amount", String.valueOf(reward.selectiveCost())));
+            return;
+        }
+        viewer.closeInventory();
+        if (crate.open().cooldownSeconds() > 0) {
+            data.setCooldown(crate.id(), java.time.Instant.now().getEpochSecond() + crate.open().cooldownSeconds());
+        }
+        data.incrOpens(crate.id());
+        services.actionLogger().open(viewer.getName(), crate.id());
         OpenSession session = new OpenSession(viewer, crate, placement, true, outcome, alternative, 0);
         session.grantAll();
     }

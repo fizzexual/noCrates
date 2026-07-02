@@ -30,17 +30,31 @@ public abstract class SqlDataStore implements DataStore {
     protected final Plugin plugin;
     protected final String prefix;
     private final boolean mysql;
-    private final ExecutorService io;
+    /**
+     * Striped single-thread executors: all IO for one player (or one crate's globals)
+     * runs on the same stripe, so save/load ordering per key is guaranteed even on
+     * MySQL — a quit-save can never race a rejoin-load.
+     */
+    private final ExecutorService[] stripes;
 
     protected SqlDataStore(Plugin plugin, String prefix, boolean mysql, int threads) {
         this.plugin = plugin;
         this.prefix = prefix;
         this.mysql = mysql;
-        this.io = Executors.newFixedThreadPool(Math.max(1, threads), r -> {
-            Thread t = new Thread(r, "noCrates-sql");
-            t.setDaemon(true);
-            return t;
-        });
+        int count = Math.max(1, threads);
+        this.stripes = new ExecutorService[count];
+        for (int i = 0; i < count; i++) {
+            final int n = i;
+            stripes[i] = Executors.newSingleThreadExecutor(r -> {
+                Thread t = new Thread(r, "noCrates-sql-" + n);
+                t.setDaemon(true);
+                return t;
+            });
+        }
+    }
+
+    private ExecutorService stripe(Object key) {
+        return stripes[Math.floorMod(key.hashCode(), stripes.length)];
     }
 
     /** Borrow a connection; SQLite returns a shared one, MySQL borrows from the pool. */
@@ -106,15 +120,17 @@ public abstract class SqlDataStore implements DataStore {
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().warning("Could not load " + id + ": " + e.getMessage());
+                // Fail loudly: returning partial data would let callers save it back
+                // over the player's real rows.
+                throw new java.util.concurrent.CompletionException(e);
             }
             return data;
-        }, io);
+        }, stripe(id));
     }
 
     @Override
     public void saveAsync(PlayerData data) {
-        io.submit(() -> saveSync(data));
+        stripe(data.id()).submit(() -> saveSync(data));
     }
 
     @Override
@@ -194,7 +210,7 @@ public abstract class SqlDataStore implements DataStore {
                 plugin.getLogger().warning("globalWins failed: " + e.getMessage());
             }
             return out;
-        }, io);
+        }, stripe(crateId));
     }
 
     @Override
@@ -211,12 +227,12 @@ public abstract class SqlDataStore implements DataStore {
                 plugin.getLogger().warning("globalWinCooldowns failed: " + e.getMessage());
             }
             return out;
-        }, io);
+        }, stripe(crateId));
     }
 
     @Override
     public void setGlobalWin(String crateId, String rewardId, int count, long cooldownUntilEpochSec) {
-        io.submit(() -> {
+        stripe(crateId).submit(() -> {
             try (Borrowed b = open(); PreparedStatement ps = b.connection.prepareStatement(
                     SqlStatements.upsertGlobalWin(prefix, mysql))) {
                 ps.setString(1, crateId);
@@ -231,8 +247,22 @@ public abstract class SqlDataStore implements DataStore {
     }
 
     @Override
+    public void incrGlobalWin(String crateId, String rewardId) {
+        stripe(crateId).submit(() -> {
+            try (Borrowed b = open(); PreparedStatement ps = b.connection.prepareStatement(
+                    SqlStatements.incrementGlobalWin(prefix, mysql))) {
+                ps.setString(1, crateId);
+                ps.setString(2, rewardId);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                plugin.getLogger().warning("incrGlobalWin failed: " + e.getMessage());
+            }
+        });
+    }
+
+    @Override
     public void resetGlobalWins(String crateId) {
-        io.submit(() -> {
+        stripe(crateId).submit(() -> {
             try (Borrowed b = open(); PreparedStatement ps = b.connection.prepareStatement(
                     "DELETE FROM " + prefix + "global_wins WHERE crate = ?")) {
                 ps.setString(1, crateId);
@@ -257,17 +287,17 @@ public abstract class SqlDataStore implements DataStore {
                 plugin.getLogger().warning("lastWinners failed: " + e.getMessage());
             }
             return out;
-        }, io);
+        }, stripe(crateId));
     }
 
     @Override
     public void pushWinner(String crateId, String row, int keep) {
-        io.submit(() -> {
+        stripe(crateId).submit(() -> {
             try (Borrowed b = open()) {
                 try (PreparedStatement ps = b.connection.prepareStatement(
                         "INSERT INTO " + prefix + "last_winners (crate, at, row) VALUES (?,?,?)")) {
                     ps.setString(1, crateId);
-                    ps.setLong(2, System.nanoTime());
+                    ps.setLong(2, System.currentTimeMillis());
                     ps.setString(3, row);
                     ps.executeUpdate();
                 }
@@ -286,9 +316,11 @@ public abstract class SqlDataStore implements DataStore {
 
     @Override
     public void close() {
-        io.shutdown();
+        for (ExecutorService stripe : stripes) stripe.shutdown();
         try {
-            io.awaitTermination(5, TimeUnit.SECONDS);
+            for (ExecutorService stripe : stripes) {
+                stripe.awaitTermination(5, TimeUnit.SECONDS);
+            }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

@@ -50,6 +50,11 @@ public final class BuiltinAnimations {
         animations.register(new FireworkDisplay());
         animations.register(new GuiRoulette());
 
+        // the choreographed expansion pack (9 pre + 9 post + 8 display)
+        com.nocrates.animation.extra.ExtraPreAnimations.all().forEach(animations::register);
+        com.nocrates.animation.extra.ExtraPostAnimations.all().forEach(animations::register);
+        com.nocrates.animation.extra.ExtraDisplayAnimations.all().forEach(animations::register);
+
         ShapeRenderer.registerAll(animations);
     }
 }

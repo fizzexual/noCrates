@@ -36,17 +36,20 @@ public final class KeyService {
 
     public void give(UUID player, String keyId, int amount) {
         players.withOffline(player, data -> data.addKeys(keyId, Math.max(0, amount)));
+        fireChange(player, keyId, amount);
     }
 
     public boolean take(Player player, String keyId, int amount) {
         var data = players.of(player);
         if (data.keys(keyId) < amount) return false;
         data.addKeys(keyId, -amount);
+        fireChange(player.getUniqueId(), keyId, -amount);
         return true;
     }
 
     public void set(UUID player, String keyId, int amount) {
         players.withOffline(player, data -> data.setKeys(keyId, Math.max(0, amount)));
+        fireChange(player, keyId, 0);
     }
 
     public boolean pay(Player from, UUID to, String keyId, int amount) {
@@ -55,7 +58,18 @@ public final class KeyService {
         if (data.keys(keyId) < amount) return false;
         data.addKeys(keyId, -amount);
         players.withOffline(to, target -> target.addKeys(keyId, amount));
+        fireChange(from.getUniqueId(), keyId, -amount);
+        fireChange(to, keyId, amount);
         return true;
+    }
+
+    /** Fires the API event for sync callers (commands, menus). */
+    private void fireChange(UUID player, String keyId, int delta) {
+        try {
+            org.bukkit.Bukkit.getPluginManager()
+                    .callEvent(new com.nocrates.api.events.KeyChangeEvent(player, keyId, delta));
+        } catch (Exception ignored) {
+        }
     }
 
     // --- physical keys ---

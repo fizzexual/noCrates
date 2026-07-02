@@ -23,6 +23,8 @@ public final class PlayerData {
     private final Map<String, Integer> rerolls = new HashMap<>();
     private final List<String> claims = new ArrayList<>();
     private volatile boolean dirty;
+    /** False for join placeholders until the async store load has been merged in. */
+    private volatile boolean loaded;
 
     public PlayerData(UUID id) {
         this.id = id;
@@ -38,6 +40,48 @@ public final class PlayerData {
 
     public void clearDirty() {
         dirty = false;
+    }
+
+    public boolean loaded() {
+        return loaded;
+    }
+
+    public void markLoaded() {
+        loaded = true;
+    }
+
+    /**
+     * Merges another data object's values into this one: counters add, cooldown
+     * timestamps take the max, claims append. Used to fold a join placeholder's
+     * mutations into freshly loaded data, and quit-time placeholders into a fresh
+     * load — so a placeholder can never overwrite stored data wholesale.
+     */
+    public synchronized void mergeFrom(PlayerData other) {
+        for (String scope : new String[]{"keys", "opens", "wins", "rerolls"}) {
+            other.rawInts(scope).forEach((k, v) -> {
+                if (v != 0) loadIntAdd(scope, k, v);
+            });
+        }
+        // milestone pointers move forward only
+        other.rawInts("milestones").forEach((k, v) ->
+                loadInt("milestones", k, Math.max(milestones.getOrDefault(k, 0), v)));
+        other.rawLongs("cooldowns").forEach((k, v) ->
+                cooldowns.merge(k, v, Math::max));
+        other.rawLongs("win-cooldowns").forEach((k, v) ->
+                winCooldowns.merge(k, v, Math::max));
+        for (String claim : other.claims()) claims.add(claim);
+        if (other.dirty) dirty = true;
+    }
+
+    private void loadIntAdd(String scope, String key, int delta) {
+        Map<String, Integer> target = switch (scope) {
+            case "keys" -> keys;
+            case "opens" -> opens;
+            case "wins" -> wins;
+            case "rerolls" -> rerolls;
+            default -> null;
+        };
+        if (target != null) target.merge(key, delta, Integer::sum);
     }
 
     private void touch() {

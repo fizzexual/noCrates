@@ -52,7 +52,8 @@ public final class ChestHuntModule extends Addon implements Listener, RewardDisp
                 Math.max(3, config().getInt("grid", 5)),
                 Math.max(1, config().getInt("chests", 8)),
                 Math.max(1, config().getInt("picks", 4)),
-                Math.max(5, config().getInt("timeout-seconds", 30)));
+                // capped below the display watchdog so a hunt is never force-completed
+                Math.min(80, Math.max(5, config().getInt("timeout-seconds", 30))));
         if (!session.start()) {
             ctx.phaseDone(); // nowhere to spawn chests — fall back to instant reveal
             return;
@@ -71,12 +72,21 @@ public final class ChestHuntModule extends Addon implements Listener, RewardDisp
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getHand() != EquipmentSlot.HAND) return;
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         Block block = event.getClickedBlock();
         if (block == null) return;
         ChestHuntSession session = byChest.get(com.nocrates.crate.Loc.key(block));
         if (session == null) return;
         event.setCancelled(true);
+        if (event.getHand() != EquipmentSlot.HAND) return; // off-hand blocked, not picked
         session.pick(event.getPlayer(), block);
+    }
+
+    /** Hunt chests are props, not free chests — no mining them. */
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onBreak(org.bukkit.event.block.BlockBreakEvent event) {
+        if (byChest.containsKey(com.nocrates.crate.Loc.key(event.getBlock()))) {
+            event.setCancelled(true);
+        }
     }
 }
