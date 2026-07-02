@@ -1,0 +1,109 @@
+# noCrates language file (en_US). MiniMessage + legacy & codes supported.
+# Set any message to '' to disable it.
+
+prefix: "<gradient:#7b5cff:#ff5ca8><bold>Crates</bold></gradient> <dark_gray>» <gray>"
+
+# --- general ---
+no-permission: "<red>You don't have permission to do that."
+player-only: "<red>Only players can use this command."
+unknown-command: "<red>Unknown subcommand. Use <yellow>/crates help</yellow>."
+player-not-found: "<red>Player <yellow><name></yellow> was not found."
+crate-not-found: "<red>Crate <yellow><crate></yellow> does not exist."
+key-not-found: "<red>Key <yellow><key></yellow> does not exist."
+reward-not-found: "<red>Reward <yellow><reward></yellow> does not exist."
+not-a-number: "<red><input> is not a number."
+module-disabled: "<red>That feature's module is disabled on this server."
+reload-done: "<green>Reloaded crates, keys, menus and language files."
+
+# --- opening ---
+open-no-key: "<red>You need <yellow><key></yellow> to open this crate."
+open-cooldown: "<red>You can open this crate again in <yellow><time></yellow>."
+open-crate-disabled: "<red>This crate is currently disabled."
+open-already-opening: "<red>This crate is already being opened."
+open-no-crate-permission: "<red>You are not allowed to open this crate."
+open-cost-charged: "<gray>You paid <gold><cost></gold> to open the crate."
+open-not-enough-money: "<red>You need <gold><cost></gold> to open this crate."
+open-you-won: "<gray>You won <white><reward></white><gray>!"
+open-broadcast: "<gold><player></gold> <gray>opened the <white><crate></white> <gray>and won <white><reward></white><gray>!"
+open-guaranteed: "<gold>Guaranteed reward! <gray>You received <white><reward></white>."
+open-inventory-full: "<red>Your inventory was full — the reward was dropped at your feet."
+preview-header: "<gray>Rewards in <white><crate></white>:"
+
+# --- keys ---
+key-given: "<gray>Gave <yellow><amount>x <key></yellow> to <white><player></white>."
+key-given-all: "<gray>Gave <yellow><amount>x <key></yellow> to <white><count></white> online players."
+key-received: "<gray>You received <yellow><amount>x <key></yellow>."
+key-taken: "<gray>Took <yellow><amount>x <key></yellow> from <white><player></white>."
+key-set: "<gray>Set <white><player></white>'s <yellow><key></yellow> keys to <yellow><amount></yellow>."
+key-balance-header: "<gray>Keys of <white><player></white>:"
+key-balance-line: " <dark_gray>- <yellow><key></yellow><gray>: <white><amount></white> <dark_gray>(virtual <virtual>, physical <physical>)"
+key-paid: "<gray>You paid <yellow><amount>x <key></yellow> to <white><player></white>."
+key-pay-received: "<gray><player> paid you <yellow><amount>x <key></yellow>."
+key-pay-insufficient: "<red>You don't have that many keys."
+key-pay-self: "<red>You cannot pay keys to yourself."
+key-reset-all: "<gray>Reset <yellow><key></yellow> for all players."
+
+# --- admin ---
+crate-created: "<green>Crate <white><crate></white> created. Use <yellow>/crates edit <crate></yellow> or the editor."
+crate-already-exists: "<red>A crate named <yellow><crate></yellow> already exists."
+crate-deleted: "<green>Crate <white><crate></white> deleted."
+crate-cloned: "<green>Cloned <white><from></white> to <white><to></white>."
+crate-enabled: "<green>Crate <white><crate></white> enabled."
+crate-disabled-msg: "<yellow>Crate <white><crate></white> disabled."
+crate-placed: "<green>Placed <white><crate></white> at <yellow><location></yellow>."
+crate-attached: "<green>Attached <white><crate></white> to the block you are looking at."
+crate-detached: "<green>Detached the crate from that block."
+crate-not-looking: "<red>You must look at a block within 6 blocks."
+crate-not-attached: "<red>That block is not a crate."
+crate-given: "<gray>Gave <yellow><amount>x <crate></yellow> crate item to <white><player></white>."
+reward-given: "<gray>Gave reward <white><reward></white> from <white><crate></white> to <white><player></white>."
+cooldown-reset: "<green>Reset <white><player></white>'s cooldown for <white><crate></white>."
+winlimit-reset: "<green>Reset win limits for <white><target></white>."
+stats-header: "<gray>Crate stats for <white><player></white>:"
+stats-line: " <dark_gray>- <white><crate></white><gray>: <yellow><opens></yellow> opens"
+
+# --- reroll ---
+reroll-given: "<gray>Gave <yellow><amount></yellow> rerolls for <white><crate></white> to <white><player></white>."
+reroll-taken: "<gray>Took <yellow><amount></yellow> rerolls for <white><crate></white> from <white><player></white>."
+reroll-none: "<red>You have no rerolls left for this crate."
+reroll-used: "<gray>Rerolled! New reward: <white><reward></white>"
+
+# --- mass open ---
+massopen-no-keys: "<red>You need at least <yellow><amount></yellow> keys for this tier."
+massopen-summary-header: "<gray>Opened <yellow><amount></yellow>x <white><crate></white>:"
+massopen-summary-line: " <dark_gray>- <white><reward></white> <gray>x<amount>"
+
+# --- claim ---
+claim-stored: "<gray>Stored <yellow><count></yellow> reward(s) in <yellow>/crates claim</yellow>."
+claim-claimed: "<gray>Claimed <white><reward></white>."
+claim-empty: "<gray>You have nothing to claim."
+
+# --- migrate ---
+migrate-started: "<gray>Importing from <white><plugin></white>..."
+migrate-done: "<green>Imported <white><crates></white> crates (<white><rewards></white> rewards) from <white><plugin></white>. Review crates/ and reload."
+migrate-nothing: "<red>Nothing found to import from <plugin>."
+migrate-unknown: "<red>No importer named <yellow><plugin></yellow>. Available: <available>"
+
+# --- editor / prompts ---
+editor-prompt-text: "<gray>Type the new value in chat, or <red>cancel</red>."
+editor-prompt-number: "<gray>Type a number in chat, or <red>cancel</red>."
+editor-prompt-cancelled: "<yellow>Editing cancelled."
+editor-prompt-timeout: "<yellow>Prompt timed out."
+editor-saved: "<green>Saved."
+editor-invalid: "<red>Invalid input."
+editor-hold-item: "<red>Hold the item in your main hand first."
+
+# --- chest hunt ---
+chesthunt-start: "<gray>A chest hunt! Open up to <yellow><picks></yellow> of the <yellow><chests></yellow> chests!"
+chesthunt-picked: "<gray>You picked a chest: <white><reward></white> <gray>(<remaining> picks left)"
+chesthunt-over: "<gray>The chest hunt is over."
+
+# --- time formatting ---
+time-days: "<d>d <h>h"
+time-hours: "<h>h <m>m"
+time-minutes: "<m>m <s>s"
+time-seconds: "<s>s"
+
+# --- help ---
+help-header: "<gray>noCrates commands:"
+help-line: " <yellow><command></yellow> <dark_gray>- <gray><description>"

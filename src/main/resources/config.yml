@@ -1,0 +1,42 @@
+# noCrates 2.0 - main configuration
+# Crates live in crates/<id>.yml, keys in keys.yml, menus in menus/, text in languages/.
+
+# Language file from the languages/ folder (without .yml).
+language: en_US
+
+# Distance (blocks) within which players see idle effects and holograms.
+render-radius: 48
+
+open:
+  # Allow sneak + right-click to skip the opening animation.
+  quick-open-enabled: true
+  # Knockback strength applied when a player tries to open without a key (0 disables).
+  knockback: 0.4
+
+database:
+  # YAML | SQLITE | MYSQL
+  type: YAML
+  table-prefix: nc_
+  mysql:
+    host: localhost
+    port: 3306
+    database: nocrates
+    username: root
+    password: ''
+    pool-size: 8
+    ssl: false
+
+logging:
+  # Write crate opens/wins to plugins/noCrates/logs/.
+  file: true
+  discord:
+    enabled: false
+    webhook-url: ''
+    username: noCrates
+    events:
+      opens: false
+      wins: true
+
+# Anonymous usage metrics (bstats.org).
+metrics: true
+debug: false

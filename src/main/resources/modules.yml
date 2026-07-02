@@ -1,0 +1,25 @@
+# Built-in modules. Disable any you do not use; external addon jars go in addons/.
+modules:
+  rarities: true
+  last-winner: true
+  crate-claim: true
+  mass-opening: true
+  lootboxes: true
+  animations-plus: true
+  chest-hunt: true
+
+# Module-specific settings.
+mass-opening:
+  # Tier -> keys opened at once. 'all' opens every key the player holds (cap below).
+  tiers: [1, 6, 12, 32, 64]
+  allow-all: true
+  all-cap: 100
+
+chest-hunt:
+  grid: 5          # NxN area around the player
+  chests: 8        # spawned chests (M)
+  picks: 4         # how many the player may open (K)
+  timeout-seconds: 30
+
+last-winner:
+  keep: 10         # winners remembered per crate

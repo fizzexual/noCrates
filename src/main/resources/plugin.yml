@@ -1,0 +1,43 @@
+name: noCrates
+version: ${project.version}
+main: com.nocrates.NoCratesPlugin
+api-version: '1.20'
+folia-supported: true
+author: fizzexual
+description: PhoenixCrates-class crates - 3-phase animations, linked keys, selective rewards, guaranteed-win, rerolls, modules.
+website: https://github.com/fizzexual/noCrates
+softdepend: [Vault, PlaceholderAPI, ItemsAdder, Oraxen, Nexo, MMOItems]
+
+commands:
+  crates:
+    description: noCrates root command.
+    usage: /crates help
+    aliases: [crate, nocrates, nc]
+
+permissions:
+  nocrates.*:
+    description: Grants all noCrates permissions.
+    default: op
+    children:
+      nocrates.admin: true
+      nocrates.editor: true
+      nocrates.open: true
+      nocrates.massopen.*: true
+  nocrates.admin:
+    description: All admin commands.
+    default: op
+  nocrates.editor:
+    description: Access the in-game editor.
+    default: op
+  nocrates.open:
+    description: Open crates.
+    default: true
+  nocrates.claim:
+    description: Use /crates claim.
+    default: true
+  nocrates.virtualkeys:
+    description: Use the virtual keys menu.
+    default: true
+  nocrates.massopen.*:
+    description: All mass-open tiers.
+    default: op
