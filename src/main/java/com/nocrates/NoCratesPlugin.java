@@ -30,6 +30,7 @@ public final class NoCratesPlugin extends JavaPlugin {
 
     private Services services;
     private Scheduling.Cancellable flushTask;
+    private com.nocrates.animation.IdleEffectTask idleEffects;
 
     @Override
     public void onEnable() {
@@ -60,6 +61,8 @@ public final class NoCratesPlugin extends JavaPlugin {
         services.crates(new com.nocrates.crate.CrateRegistry(this));
         services.placements(new com.nocrates.crate.PlacementManager(this, services.crates()));
         services.animations(new com.nocrates.animation.AnimationService(this));
+        com.nocrates.animation.BuiltinAnimations.registerAll(services.animations());
+        this.idleEffects = new com.nocrates.animation.IdleEffectTask(this, services.animations());
         services.winLimits(new com.nocrates.reward.WinLimitService(services.dataStore()));
         services.openService(new com.nocrates.open.OpenService());
         services.rerolls(new com.nocrates.reroll.RerollService(services.players()));
@@ -93,6 +96,8 @@ public final class NoCratesPlugin extends JavaPlugin {
             services.placements().rebuild();
             for (var crate : services.crates().all()) services.winLimits().warm(crate.id());
         });
+        idleEffects.start();
+        services.reloads().register(idleEffects::invalidate);
 
         // Periodic dirty-data flush (every 5 minutes).
         flushTask = Scheduling.asyncTimer(this, 20L * 300, 20L * 300, services.players()::flushDirty);
@@ -105,6 +110,7 @@ public final class NoCratesPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (flushTask != null) flushTask.cancel();
+        if (idleEffects != null) idleEffects.stop();
         if (services != null) {
             if (services.placements() != null) services.placements().shutdown();
             if (services.players() != null) services.players().flushAllSync();

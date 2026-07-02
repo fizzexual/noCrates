@@ -29,6 +29,7 @@ public final class OpeningContext {
     private final List<Reward> outcome;
     private final Runnable onComplete;
     private final AtomicInteger phaseGuard = new AtomicInteger();
+    private final java.util.List<Runnable> cleanups = new java.util.concurrent.CopyOnWriteArrayList<>();
     private volatile Phase phase = Phase.PRE;
     private java.util.function.Consumer<Phase> phaseRunner;
 
@@ -84,10 +85,22 @@ public final class OpeningContext {
         return reward.displayItem().build();
     }
 
+    /** Registers cleanup (entity removal etc.) executed when the current phase ends. */
+    public void onPhaseCleanup(Runnable cleanup) {
+        cleanups.add(cleanup);
+    }
+
     /** Advances PRE -> POST -> DISPLAY -> completion; safe to call once per phase. */
     public void phaseDone() {
         int expected = phase.ordinal();
         if (!phaseGuard.compareAndSet(expected, expected + 1)) return;
+        for (Runnable cleanup : cleanups) {
+            try {
+                cleanup.run();
+            } catch (Exception ignored) {
+            }
+        }
+        cleanups.clear();
         Phase next = switch (phase) {
             case PRE -> Phase.POST;
             case POST -> Phase.DISPLAY;

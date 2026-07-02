@@ -8,7 +8,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Lidded;
 import org.bukkit.entity.Display;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Transformation;
@@ -84,7 +83,7 @@ public final class CratePlacement {
         removeModel(loc);
         Location at = loc.clone().add(0.5, 0.5 + crate.modelYOffset(), 0.5);
         cleanupStaleModels(at);
-        ItemDisplay display = (ItemDisplay) loc.getWorld().spawnEntity(at, EntityType.ITEM_DISPLAY);
+        ItemDisplay display = loc.getWorld().spawn(at, ItemDisplay.class);
         display.setItemStack(crate.modelItem().build());
         display.setBillboard(Display.Billboard.FIXED);
         display.setPersistent(false);

@@ -5,7 +5,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Display;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -28,7 +27,7 @@ public final class Hologram {
         if (lines.isEmpty()) return;
         Location at = blockLoc.clone().add(0.5, offset, 0.5);
         cleanupStale(at);
-        TextDisplay display = (TextDisplay) blockLoc.getWorld().spawnEntity(at, EntityType.TEXT_DISPLAY);
+        TextDisplay display = blockLoc.getWorld().spawn(at, TextDisplay.class);
         display.text(joined(lines, crateName));
         display.setBillboard(Display.Billboard.CENTER);
         display.setPersistent(false);
