@@ -105,5 +105,27 @@ public final class IdleEffectEditor extends Menu {
         crate.animation().idleEffects(updated);
         save();
         Services.get().lang().send(viewer, "editor-saved");
+        preview(spec);
+    }
+
+    /** Renders the freshly added effect at the player for ~3 seconds. */
+    private void preview(String specLine) {
+        com.nocrates.animation.EffectSpec spec;
+        try {
+            spec = com.nocrates.animation.EffectSpec.parse(specLine);
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+        var services = Services.get();
+        var shape = services.animations().shape(spec.shape());
+        if (shape == null) return;
+        var anchor = viewer.getLocation().clone().add(0, 1.1, 0);
+        final int[] tick = {0};
+        final com.nocrates.compat.Scheduling.Cancellable[] handle = new com.nocrates.compat.Scheduling.Cancellable[1];
+        handle[0] = com.nocrates.compat.Scheduling.timer(services.plugin(), anchor, 2, 2, () -> {
+            tick[0] += 2;
+            com.nocrates.animation.ParticleBrush.render(spec, shape, anchor, tick[0]);
+            if (tick[0] >= 60 && handle[0] != null) handle[0].cancel();
+        });
     }
 }

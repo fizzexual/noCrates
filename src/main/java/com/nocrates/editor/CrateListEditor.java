@@ -39,6 +39,7 @@ public final class CrateListEditor extends Menu {
                     .lore(List.of(
                             "<gray>id: <white>" + crate.id(),
                             "<gray>rewards: <white>" + crate.rewards().size(),
+                            "<gray>placed: <white>" + crate.locations().size() + " <gray>location(s)",
                             crate.enabled() ? "<green>enabled" : "<red>disabled",
                             "",
                             "<yellow>Click <gray>to edit",

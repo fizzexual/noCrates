@@ -156,6 +156,12 @@ public final class RewardEditor extends Menu {
             prompt(input -> reward.restrictedPermissions().add(input));
         }));
 
+        set(28, new MenuItem(EditorIcons.button(Material.OAK_SIGN, "Display name",
+                "Currently: " + reward.displayName(),
+                "Shown in previews, lore, broadcasts.",
+                "Click and type the new name."), e -> prompt(input ->
+                reward.displayItem().name(input))));
+
         set(36, new MenuItem(EditorIcons.back(), e -> new RewardListEditor(viewer, crate).open()));
     }
 

@@ -54,6 +54,18 @@ public final class AnimationService {
         return display.keySet();
     }
 
+    public java.util.Optional<PreOpenAnimation> preById(String id) {
+        return java.util.Optional.ofNullable(pre.get(id.toUpperCase(Locale.ROOT)));
+    }
+
+    public java.util.Optional<PostOpenAnimation> postById(String id) {
+        return java.util.Optional.ofNullable(post.get(id.toUpperCase(Locale.ROOT)));
+    }
+
+    public java.util.Optional<RewardDisplayAnimation> displayById(String id) {
+        return java.util.Optional.ofNullable(display.get(id.toUpperCase(Locale.ROOT)));
+    }
+
     public IdleShape shape(String id) {
         return id == null ? null : shapes.get(id.toUpperCase(Locale.ROOT));
     }

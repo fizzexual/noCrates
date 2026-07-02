@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
+// (live previews delegate to AnimationDemo)
+
 /**
  * Per-phase animation selection. Lists every registered animation — including ones
  * added by modules and external addons — for pre-open, post-open and reward-display.
@@ -74,14 +76,27 @@ public final class AnimationPicker extends Menu {
         for (int i = 0; i < ids.size() && i < 36; i++) {
             String id = ids.get(i);
             boolean selected = id.equalsIgnoreCase(current);
+            boolean demoable = AnimationDemo.canDemo(id);
+            List<String> lore = new ArrayList<>(List.of(selected ? "<green>Selected" : "<gray>Click to select"));
+            if (demoable) lore.add("<light_purple>Right-click for a live preview");
             var icon = com.nocrates.item.ItemBuilder
                     .of(selected ? Material.GLOWSTONE_DUST : Material.GUNPOWDER)
                     .name((selected ? "<green>" : "<yellow>") + id)
-                    .lore(List.of(selected ? "<green>Selected" : "<gray>Click to select"))
+                    .lore(lore)
                     .glow(selected)
                     .build();
             set(9 + i, new MenuItem(icon, e -> {
                 clickSound();
+                if (e.isRightClick()) {
+                    if (!demoable) return;
+                    viewer.closeInventory();
+                    AnimationDemo.play(viewer, crate, switch (tab) {
+                        case PRE -> com.nocrates.animation.OpeningContext.Phase.PRE;
+                        case POST -> com.nocrates.animation.OpeningContext.Phase.POST;
+                        case DISPLAY -> com.nocrates.animation.OpeningContext.Phase.DISPLAY;
+                    }, id);
+                    return;
+                }
                 switch (tab) {
                     case PRE -> crate.animation().preOpen(id);
                     case POST -> crate.animation().postOpen(id);

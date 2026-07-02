@@ -50,6 +50,33 @@ public final class PlacementManager implements Listener {
         }
     }
 
+    /** Respawns visuals for ONE crate's placements — editor saves don't flicker the whole server. */
+    public void refresh(Crate crate) {
+        // drop placements whose location was removed from the crate
+        for (CratePlacement placement : new java.util.ArrayList<>(byLocation.values())) {
+            if (placement.crate() == crate && !crate.locations().contains(placement.locKey())) {
+                byLocation.remove(placement.locKey());
+                Location loc = placement.location();
+                if (loc != null) Scheduling.run(plugin, loc, placement::despawnVisuals);
+            }
+        }
+        for (String locKey : crate.locations()) {
+            CratePlacement placement = byLocation.get(locKey);
+            if (placement == null || placement.crate() != crate) {
+                placement = new CratePlacement(crate, locKey);
+                byLocation.put(locKey, placement);
+            }
+            CratePlacement current = placement;
+            Location loc = current.location();
+            if (loc != null) {
+                Scheduling.run(plugin, loc, () -> {
+                    current.despawnVisuals();
+                    current.spawnVisuals();
+                });
+            }
+        }
+    }
+
     public void shutdown() {
         for (CratePlacement placement : byLocation.values()) {
             placement.despawnVisuals();

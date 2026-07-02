@@ -35,7 +35,7 @@ hologram:
   lines:
     - "<gradient:#ffc145:#ff5ca8><bold>LEGENDARY CRATE</bold></gradient>"
     - "<gray>Costs <gold>$2,500</gold> + 1 <gold>Premium Key</gold>"
-    - "<gray>Guaranteed reward in <yellow>%nocrates_guaranteed_amount_legendary%</yellow> opens"
+    - "<gray>Every opening drops <yellow>2</yellow> rewards!"
   offset: 1.8
 
 preview:

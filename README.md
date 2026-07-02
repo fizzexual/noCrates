@@ -26,15 +26,15 @@
 
 ## ✨ Highlights
 
-- 🎬 **Cinematic openings** — every crate chains three independently chosen phases (*pre-open → post-open → reward display*) from a pool of **26 animations**: lightning strikes, sonic booms, black holes, orbiting reward reels, a frog that cannonballs into your crate, a CS:GO-style spinner both in-world *and* as a GUI, and more. Mix them into hundreds of combinations — per crate, in-game.
-- 🌀 **Idle auras** — crates glow around the clock with **13 parametric particle shapes** (spirals, stars, astroids, flowers, pulses…) in any particle and any color, built with a point-and-click wizard or a one-line spec.
+- 🎬 **Cinematic openings** — every crate chains three independently chosen phases (*pre-open → post-open → reward display*) from a pool of **28 animations**: lightning strikes, sonic booms, black holes, orbiting reward reels, a frog that cannonballs into your crate, beacon light beams, and CS:GO reels in-world (horizontal *and* vertical) plus a GUI spinner. Mix them into hundreds of combinations — per crate, in-game, **with live right-click previews in the editor**.
+- 🌀 **Idle auras** — crates glow around the clock with **15 parametric particle shapes** (spirals, stars, astroids, flowers, pulses, helixes, spinning hearts…) in any particle and any color, built with a point-and-click wizard that previews each effect at your feet.
 - 🔑 **Keys done right** — keys are first-class objects linked to crates many-to-many with per-link *amounts* and *consumption priority*. Virtual (dupe-proof) and physical keys, key payments between players, and keys that **guarantee a rarity tier**.
 - 🎁 **A reward engine with teeth** — multiple win-items + commands per reward, per-player *and* global win limits with cooldowns, permission-restricted rewards with automatic **alternative rewards**, `always` rewards granted on **every** open (lootbox "guaranteed items"), broadcast/virtual/shared rewards, and up to **30 rewards per opening**.
 - 🧭 **Two ways to win** — classic weighted **RANDOM** rolls, or **SELECTIVE** mode where players *choose* their reward for a key cost. No gambling, no chargebacks, P2W-friendly.
 - 🛡️ **Guaranteed win** — pity milestones that fire every N opens (*repetitive*) or at one-time thresholds (*sequential*), with optional chance mixing and live placeholders.
 - 🎲 **Rerolls** — free-per-open, permission-group and admin-granted reroll balances stack; a claim-or-reroll menu appears after the animation and closing it always claims, so a reroll can never void a reward.
 - 🧩 **Seven built-in modules + external addons** — everything below ships in the jar, and the same loader runs *your* addon jars.
-- 🖥️ **Edit everything in-game** — `/crates editor` covers crates, rewards (drag your held item in), keys, links, animations, idle effects, milestones and migrations. Files stay clean, hand-editable YAML.
+- 🖥️ **Edit everything in-game** — `/crates editor` covers crates, rewards (drag your held item in), keys, links, animations (**right-click = live preview at your feet**), idle effects (instant preview on add), milestones and migrations. Files stay clean, hand-editable YAML.
 - 🚀 **One jar, every modern version** — Minecraft **1.20 through 26.2**, Paper/Purpur/**Folia**, no NMS, no packet library, no version-specific downloads.
 
 ## 🧩 Modules
@@ -58,8 +58,8 @@ Every opening is `pre-open → post-open → reward-display`, each phase picked 
 | Phase | Built-in choices |
 |---|---|
 | **Pre-open** | `DEFAULT` `CRACK` `LIGHTNING` `KEY_OPENER` `FIRE` `BLASTING` `SONIC_BOOM` `RAINBOW` `CYCLONE_HEART` `FROGGO_BOOM` `CHICKEN_JOCKEY` |
-| **Post-open** | `BALL` `SWIRL` `FIRE` `COMPACT` `ROTATING_HEAD` `PHYSICAL_CSGO` `ORBIT_ROULETTE` `ASTRO_BURST` `BLACK_HOLE` |
-| **Reward display** | `DEFAULT` `HELIX` `SMOKE_SPIRAL` `FIRE_SPIRAL` `PHYSICAL_ITEM` `FIREWORK` `GUI_CSGO` `CHEST_HUNT` |
+| **Post-open** | `BALL` `SWIRL` `FIRE` `COMPACT` `ROTATING_HEAD` `CSGO` `PHYSICAL_CSGO` `ORBIT_ROULETTE` `ASTRO_BURST` `BLACK_HOLE` |
+| **Reward display** | `DEFAULT` `BEAM` `HELIX` `SMOKE_SPIRAL` `FIRE_SPIRAL` `PHYSICAL_ITEM` `FIREWORK` `GUI_CSGO` `CHEST_HUNT` |
 
 Timings are per-phase and per-crate; a watchdog force-completes any stuck phase so **an animation bug can never eat a reward**. Everything is display-entity and particle based — no NMS.
 
@@ -72,7 +72,7 @@ animation:
     - "CIRCLE;{DUST;#ff5ca8;0;1.4;0;0.5;0;1}"
 ```
 
-Shapes: `CIRCLE SPIRAL CONICAL_SPIRAL STAR NINJA_STAR SQUARE DIAMOND ASTROID DELTOID FLOWER QUATREFOIL PULSE DEFAULT`.
+Shapes: `CIRCLE SPIRAL CONICAL_SPIRAL STAR NINJA_STAR SQUARE DIAMOND ASTROID DELTOID FLOWER QUATREFOIL PULSE HELIX HEART DEFAULT`.
 
 ## 🚀 Quick start
 
@@ -192,7 +192,7 @@ text engine that powers MiniMessage formatting).
 
 ```bash
 git clone https://github.com/fizzexual/noCrates && cd noCrates
-mvn clean package        # JDK 21+ → target/noCrates-2.0.0.jar
+mvn clean package        # JDK 21+ → target/noCrates-<version>.jar
 ```
 
 37 unit tests cover the roll engine, guaranteed-win logic, win limits, key-link planning,

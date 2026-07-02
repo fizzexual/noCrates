@@ -34,7 +34,7 @@ hologram:
   lines:
     - "<gradient:#31d0aa:#2f6fed><bold>TOKEN SHOP</bold></gradient>"
     - "<gray>Pick exactly what you want"
-    - "<aqua>Tokens: <white>%nocrates_keys_token%"
+    - "<aqua>Check your tokens with /crates virtualkeys"
   offset: 1.6
 
 preview:

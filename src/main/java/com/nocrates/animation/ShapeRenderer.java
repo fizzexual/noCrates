@@ -110,6 +110,31 @@ public final class ShapeRenderer {
             return points;
         }));
 
+        // Double helix climbing and wrapping around the crate.
+        shapes.add(new Shape("HELIX", (radius, tick) -> {
+            List<Vector> points = new ArrayList<>(2);
+            double t = (tick % 50) / 50.0;
+            double angle = tick * 0.22;
+            points.add(polar(radius, angle, t * 2.0));
+            points.add(polar(radius, angle + Math.PI, t * 2.0));
+            return points;
+        }));
+
+        // Classic heart curve drawn upright, slowly spinning. Scaled into the radius.
+        shapes.add(new Shape("HEART", (radius, tick) -> {
+            List<Vector> points = new ArrayList<>(8);
+            double spin = tick * 0.04;
+            for (int i = 0; i < 8; i++) {
+                double t = tick * 0.09 + i * Math.PI / 4;
+                double x = Math.pow(Math.sin(t), 3);                                   // -1..1
+                double y = (13 * Math.cos(t) - 5 * Math.cos(2 * t)
+                        - 2 * Math.cos(3 * t) - Math.cos(4 * t)) / 16.0;              // ~-1..1
+                Vector flat = new Vector(x * radius * 0.9, y * radius * 0.5 + radius * 0.4, 0);
+                points.add(rotateY(flat, spin));
+            }
+            return points;
+        }));
+
         return shapes;
     }
 

@@ -15,10 +15,11 @@ class ShapeRendererTest {
 
     private static final Set<String> EXPECTED = Set.of(
             "DEFAULT", "CIRCLE", "SPIRAL", "CONICAL_SPIRAL", "STAR", "NINJA_STAR",
-            "SQUARE", "DIAMOND", "ASTROID", "DELTOID", "FLOWER", "QUATREFOIL", "PULSE");
+            "SQUARE", "DIAMOND", "ASTROID", "DELTOID", "FLOWER", "QUATREFOIL", "PULSE",
+            "HELIX", "HEART");
 
     @Test
-    void allThirteenShapesExist() {
+    void allBuiltinShapesExist() {
         Set<String> ids = ShapeRenderer.builtins().stream()
                 .map(ShapeRenderer.Shape::id)
                 .collect(Collectors.toSet());

@@ -39,8 +39,10 @@ public final class BuiltinAnimations {
         animations.register(new FirePost());
         animations.register(new CompactPost());
         animations.register(new RotatingHeadPost());
+        animations.register(new com.nocrates.animation.post.CsgoPost());
 
         animations.register(new DefaultDisplay());
+        animations.register(new com.nocrates.animation.display.BeamDisplay());
         animations.register(new HelixDisplay());
         animations.register(new SmokeSpiralDisplay());
         animations.register(new FireSpiralDisplay());

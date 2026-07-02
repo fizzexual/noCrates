@@ -24,7 +24,7 @@ public final class CrateEditor extends Menu {
 
     private void save() {
         Services.get().crates().save(crate);
-        Services.get().placements().rebuild();
+        Services.get().placements().refresh(crate);
     }
 
     @Override

@@ -31,7 +31,7 @@ hologram:
   lines:
     - "<gradient:#2f6fed:#31d0aa><bold>DAILY CRATE</bold></gradient>"
     - "<gray>Free! Come back every day."
-    - "<gray>Next open: <yellow>%nocrates_cooldown_daily%"
+    - "<gray>7-day streak = guaranteed jackpot"
   offset: 1.6
 
 preview:
