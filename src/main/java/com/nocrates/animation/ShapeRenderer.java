@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 /**
- * The 13 built-in parametric idle shapes (PhoenixCrates parity): DEFAULT, CIRCLE,
+ * The 13 built-in parametric idle shapes: DEFAULT, CIRCLE,
  * SPIRAL, CONICAL_SPIRAL, STAR, NINJA_STAR, SQUARE, DIAMOND, ASTROID, DELTOID, FLOWER,
  * QUATREFOIL, PULSE. Shapes rotate/animate with the tick counter and return offsets
  * from the crate anchor. Pure math — unit tested.

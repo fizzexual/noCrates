@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * Paged reward preview. Shows both the configured weight ("percentage") and the
- * normalized real chance, PhoenixCrates-style. Layout comes from menus/preview.yml.
+ * normalized real chance. Layout comes from menus/preview.yml.
  */
 public final class PreviewMenu extends Menu {
 

@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Last Winner (PhoenixCrates add-on parity): rolling winner history per crate exposed
+ * Last Winner module: rolling winner history per crate exposed
  * as placeholders — %nocrates_lastwinner_&lt;field&gt;_&lt;crate&gt;_&lt;n&gt;% with
  * field in player/reward/second/minute/hour/day/month/year and n = 1 (newest) .. keep.
  */

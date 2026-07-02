@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
- * PhoenixCrates-style action lines: {@code [TYPE] args}. Used by menu icons, reward
+ * Bracketed action lines: {@code [TYPE] args}. Used by menu icons, reward
  * follow-ups and modules. [DELAY] suspends the remaining chain. Unknown types are
  * reported by {@link #validate(List)} and skipped at run time with a single warning.
  */

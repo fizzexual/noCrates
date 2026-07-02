@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import java.util.Map;
 
 /**
- * Reroll sources stack, PhoenixCrates-style: free rerolls per opening + permission
+ * Reroll sources stack: free rerolls per opening + permission
  * groups (nocrates.reroll.&lt;group&gt;, amounts summed) + an admin-granted persistent
  * balance. Temporary (free+group) rerolls are consumed before the granted balance.
  */

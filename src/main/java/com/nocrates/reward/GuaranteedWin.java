@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * PhoenixCrates-style "Guaranteed Win" (milestones). SEQUENTIAL walks a one-time list of
+ * "Guaranteed Win" milestones. SEQUENTIAL walks a one-time list of
  * thresholds; REPETITIVE cycles the list forever, firing every time the player's total
  * opens hit a milestone's openings multiple. A milestone may additionally carry a chance
  * (0-100): with openings > 0 and chance > 0 both must hold; with openings == 0 the

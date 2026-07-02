@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Mass Opening (PhoenixCrates add-on parity): open many keys at once through tier
+ * Mass Opening module: open many keys at once through tier
  * buttons (x1/x6/x12/x32/x64/all), gated by nocrates.massopen.&lt;tier&gt; permissions,
  * with an aggregated summary instead of reward spam.
  */

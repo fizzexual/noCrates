@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Chest Hunt — noCrates' signature mechanic (not in PhoenixCrates): set a crate's
+ * Chest Hunt — noCrates' signature mechanic: set a crate's
  * reward-display to CHEST_HUNT and opening it spawns M temporary chests around the
  * player; they physically open up to K, each granting an independently rolled reward,
  * then the area restores itself.

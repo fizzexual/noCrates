@@ -27,7 +27,7 @@ import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
 /**
- * Loads the built-in modules (toggleable in modules.yml, PhoenixCrates add-on parity)
+ * Loads the built-in modules (toggleable in modules.yml)
  * and external addon jars from plugins/noCrates/addons/ (addon.yml + a main class
  * extending {@link Addon}). A failing addon is disabled and skipped, never fatal.
  */

@@ -19,9 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SELECTIVE rewards mode: the player *chooses* a reward and pays its key cost —
- * PhoenixCrates' "non-gambling opening". Blocked rewards (limits/permissions) show
- * but cannot be taken.
+ * SELECTIVE rewards mode: the player *chooses* a reward and pays its key cost — a
+ * non-gambling opening. Blocked rewards (limits/permissions) show but cannot be taken.
  */
 public final class SelectiveMenu extends Menu {
 

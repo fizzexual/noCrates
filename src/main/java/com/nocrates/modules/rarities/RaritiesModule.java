@@ -24,7 +24,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Rarities (PhoenixCrates "Rarity" add-on parity): rarity tiers with optional
+ * Rarities module: rarity tiers with optional
  * synchronized drop rates, rarity lines in previews, and keys that guarantee a reward
  * of specific rarities.
  */

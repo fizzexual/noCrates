@@ -74,7 +74,7 @@ public final class MilestoneEditor extends Menu {
         List<GuaranteedWin.Milestone> milestones = crate.milestones();
         for (int i = 0; i < milestones.size() && i < 36; i++) {
             GuaranteedWin.Milestone milestone = milestones.get(i);
-            // color hints like PhoenixCrates: openings-only, chance-only, or both
+            // color hints: openings-only (red), chance-only (green), or both (yellow)
             Material material = milestone.openings() > 0 && milestone.chance() > 0 ? Material.YELLOW_WOOL
                     : milestone.openings() > 0 ? Material.RED_WOOL : Material.LIME_WOOL;
             final int index = i;

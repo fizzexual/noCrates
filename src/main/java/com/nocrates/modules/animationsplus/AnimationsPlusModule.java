@@ -3,10 +3,10 @@ package com.nocrates.modules.animationsplus;
 import com.nocrates.api.Addon;
 
 /**
- * Animations+ — parity with PhoenixCrates' paid animation add-ons, free: Rainbow,
- * Cyclone Heart, Froggo Boom, Chicken Jockey (pre-open) and Physical CSGO, Orbit
- * Roulette, Astro Burst, Black Hole (post-open). They appear automatically in crate
- * files and the editor's animation pickers.
+ * Animations+ — eight showcase animations: Rainbow, Cyclone Heart, Froggo Boom,
+ * Chicken Jockey (pre-open) and Physical CSGO, Orbit Roulette, Astro Burst,
+ * Black Hole (post-open). They appear automatically in crate files and the
+ * editor's animation pickers.
  */
 public final class AnimationsPlusModule extends Addon {
 

@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import java.time.Instant;
 
 /**
- * Crate Claim (PhoenixCrates add-on parity): rewards that don't fit the winner's
+ * Crate Claim module: rewards that don't fit the winner's
  * inventory are stored instead of dropped, claimable any time with /crates claim.
  */
 public final class CrateClaimModule extends Addon {

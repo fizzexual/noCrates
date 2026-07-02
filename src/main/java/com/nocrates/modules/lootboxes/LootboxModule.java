@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * LootBoxes (PhoenixCrates add-on parity): inventory-carried crates. Give a player a
+ * LootBoxes module: inventory-carried crates. Give a player a
  * lootbox item; placing it plays the crate's animation once, grants a reward and the
  * box disappears. No key needed.
  */

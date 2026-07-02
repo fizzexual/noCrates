@@ -3,7 +3,7 @@ package com.nocrates.animation;
 import java.util.Locale;
 
 /**
- * Idle effect definition string, PhoenixCrates-style:
+ * Idle effect definition string:
  * {@code SHAPE;{PARTICLE;#hex;offX;offY;offZ;radius;velocity;amount}}
  * The color is optional (colorable particles only). Example:
  * {@code SPIRAL;{DUST;#7b5cff;0;0.2;0;1.2;0.05;2}}

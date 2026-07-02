@@ -4,7 +4,7 @@ main: com.nocrates.NoCratesPlugin
 api-version: '1.20'
 folia-supported: true
 author: fizzexual
-description: PhoenixCrates-class crates - 3-phase animations, linked keys, selective rewards, guaranteed-win, rerolls, modules.
+description: Advanced crates - 3-phase animations, linked keys, selective rewards, guaranteed-win, rerolls, modules.
 website: https://github.com/fizzexual/noCrates
 softdepend: [Vault, PlaceholderAPI, ItemsAdder, Oraxen, Nexo, MMOItems]
 

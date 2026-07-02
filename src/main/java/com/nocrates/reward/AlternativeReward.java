@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * Fallback granted when the rolled reward is blocked (restricted permission or a hit
- * win limit): an optional item and/or commands, PhoenixCrates-style.
+ * win limit): an optional item and/or commands.
  */
 public final class AlternativeReward {
 
