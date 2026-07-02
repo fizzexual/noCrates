@@ -1,0 +1,17 @@
+# Rarities module. Attach a rarity to a reward with "rarity: epic" in the crate file.
+# sync-percentage: when >= 0, EVERY reward of this rarity uses this weight (synchronized
+# drop rates across the tier). -1 keeps each reward's own percentage.
+# Keys can guarantee rarities: add "guarantee-rarity: [legendary]" to a key in keys.yml.
+rarities:
+  common:
+    display: "<gray>■ Common"
+    sync-percentage: -1
+  rare:
+    display: "<blue>■ Rare"
+    sync-percentage: -1
+  epic:
+    display: "<light_purple>■ Epic"
+    sync-percentage: -1
+  legendary:
+    display: "<gold>■ Legendary"
+    sync-percentage: -1

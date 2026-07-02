@@ -77,6 +77,11 @@ massopen-summary-line: " <dark_gray>- <white><reward></white> <gray>x<amount>"
 claim-stored: "<gray>Stored <yellow><count></yellow> reward(s) in <yellow>/crates claim</yellow>."
 claim-claimed: "<gray>Claimed <white><reward></white>."
 claim-empty: "<gray>You have nothing to claim."
+claim-menu-title: "<dark_gray>Unclaimed rewards"
+claim-all-button: "<green><bold>Claim everything</bold>"
+
+# --- lootboxes ---
+lootbox-lore: "<gray>Place me to open!"
 
 # --- migrate ---
 migrate-started: "<gray>Importing from <white><plugin></white>..."

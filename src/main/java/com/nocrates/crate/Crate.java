@@ -225,8 +225,8 @@ public final class Crate {
 
     /** Normalized chance (0-100) of one reward relative to the whole crate. */
     public double normalizedChance(Reward reward) {
-        double total = rewards.values().stream().mapToDouble(Reward::percentage).sum();
-        return total <= 0 ? 0 : reward.percentage() / total * 100.0;
+        double total = rewards.values().stream().mapToDouble(com.nocrates.reward.Weights::of).sum();
+        return total <= 0 ? 0 : com.nocrates.reward.Weights.of(reward) / total * 100.0;
     }
 
     public boolean guaranteedEnabled() {

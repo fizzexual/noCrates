@@ -36,7 +36,9 @@ public final class KeyRegistry implements Reloadable {
             ConfigurationSection s = root.getConfigurationSection(id);
             if (s == null) continue;
             ItemSpec item = ItemSpec.fromConfig(s.getConfigurationSection("item"));
-            keys.put(id.toLowerCase(Locale.ROOT), new Key(id.toLowerCase(Locale.ROOT), item, s.getBoolean("virtual", false)));
+            Key key = new Key(id.toLowerCase(Locale.ROOT), item, s.getBoolean("virtual", false));
+            key.guaranteeRarities(s.getStringList("guarantee-rarity"));
+            keys.put(key.id(), key);
         }
     }
 
@@ -45,6 +47,7 @@ public final class KeyRegistry implements Reloadable {
         for (Key key : keys.values()) {
             ConfigurationSection s = yml.createSection("keys." + key.id());
             s.set("virtual", key.virtual());
+            if (!key.guaranteeRarities().isEmpty()) s.set("guarantee-rarity", key.guaranteeRarities());
             key.item().write(s.createSection("item"));
         }
         try {

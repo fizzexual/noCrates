@@ -145,4 +145,25 @@ public final class Compat {
         if (s.indexOf(':') >= 0 || s.indexOf('.') >= 0) return s.toLowerCase(Locale.ROOT);
         return s.toLowerCase(Locale.ROOT).replace('_', '.');
     }
+
+    private static final String[][] POTION_RENAMES = {
+            {"SLOW", "SLOWNESS"}, {"FAST_DIGGING", "HASTE"}, {"SLOW_DIGGING", "MINING_FATIGUE"},
+            {"INCREASE_DAMAGE", "STRENGTH"}, {"HEAL", "INSTANT_HEALTH"}, {"HARM", "INSTANT_DAMAGE"},
+            {"JUMP", "JUMP_BOOST"}, {"CONFUSION", "NAUSEA"}, {"DAMAGE_RESISTANCE", "RESISTANCE"}
+    };
+
+    /** Potion effect by old or new name; null when unresolvable. */
+    @SuppressWarnings("deprecation")
+    public static org.bukkit.potion.PotionEffectType potionEffect(String name) {
+        if (name == null || name.isEmpty()) return null;
+        String key = name.trim().toUpperCase(Locale.ROOT);
+        org.bukkit.potion.PotionEffectType type = org.bukkit.potion.PotionEffectType.getByName(key);
+        if (type != null) return type;
+        for (String[] pair : POTION_RENAMES) {
+            if (pair[0].equals(key)) type = org.bukkit.potion.PotionEffectType.getByName(pair[1]);
+            else if (pair[1].equals(key)) type = org.bukkit.potion.PotionEffectType.getByName(pair[0]);
+            if (type != null) return type;
+        }
+        return null;
+    }
 }

@@ -36,6 +36,11 @@ public final class RewardGrant {
 
     /** Grants {@code reward} (or its alternative when {@code useAlternative}). */
     public static void grant(Player player, Crate crate, Reward reward, boolean useAlternative) {
+        grant(player, crate, reward, useAlternative, false);
+    }
+
+    /** {@code quiet} suppresses the personal you-won chat line (mass-open summaries). */
+    public static void grant(Player player, Crate crate, Reward reward, boolean useAlternative, boolean quiet) {
         var lang = Services.get().lang();
         if (useAlternative && reward.alternative().enabled()) {
             AlternativeReward alt = reward.alternative();
@@ -44,7 +49,7 @@ public final class RewardGrant {
             }
             runCommands(player, alt.commands());
             String name = alt.displayName().isEmpty() ? reward.displayName() : alt.displayName();
-            lang.send(player, "open-you-won", Placeholder.parsed("reward", name));
+            if (!quiet) lang.send(player, "open-you-won", Placeholder.parsed("reward", name));
             if (alt.broadcast()) broadcast(player, crate, name);
             Services.get().actionLogger().win(player.getName(), crate.id(), reward.id() + " (alternative)");
             Bukkit.getPluginManager().callEvent(new RewardWinEvent(player, crate, reward, true));
@@ -55,7 +60,7 @@ public final class RewardGrant {
             giveItems(player, crate, reward, reward.winItems());
         }
         runCommands(player, reward.winCommands());
-        lang.send(player, "open-you-won", Placeholder.parsed("reward", reward.displayName()));
+        if (!quiet) lang.send(player, "open-you-won", Placeholder.parsed("reward", reward.displayName()));
         if (reward.broadcast()) broadcast(player, crate, reward.displayName());
         if (reward.shareOnline()) {
             for (Player online : Bukkit.getOnlinePlayers()) {

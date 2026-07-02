@@ -31,6 +31,7 @@ public final class NoCratesPlugin extends JavaPlugin {
     private Services services;
     private Scheduling.Cancellable flushTask;
     private com.nocrates.animation.IdleEffectTask idleEffects;
+    private com.nocrates.module.ModuleManager modules;
 
     @Override
     public void onEnable() {
@@ -91,6 +92,9 @@ public final class NoCratesPlugin extends JavaPlugin {
             new com.nocrates.hook.PapiExpansion().register();
         }
 
+        this.modules = new com.nocrates.module.ModuleManager(this, new com.nocrates.module.ApiImpl());
+        modules.enableAll();
+
         // World data becomes available after all plugins load.
         Scheduling.run(this, null, () -> {
             services.placements().rebuild();
@@ -111,6 +115,7 @@ public final class NoCratesPlugin extends JavaPlugin {
     public void onDisable() {
         if (flushTask != null) flushTask.cancel();
         if (idleEffects != null) idleEffects.stop();
+        if (modules != null) modules.disableAll();
         if (services != null) {
             if (services.placements() != null) services.placements().shutdown();
             if (services.players() != null) services.players().flushAllSync();

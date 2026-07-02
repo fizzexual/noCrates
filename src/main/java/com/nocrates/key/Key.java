@@ -18,11 +18,21 @@ public final class Key {
     private final String id;
     private ItemSpec item;
     private boolean virtual;
+    /** Rarity ids this key guarantees (rarities module); empty = no guarantee. */
+    private java.util.List<String> guaranteeRarities = new java.util.ArrayList<>();
 
     public Key(String id, ItemSpec item, boolean virtual) {
         this.id = id;
         this.item = item;
         this.virtual = virtual;
+    }
+
+    public java.util.List<String> guaranteeRarities() {
+        return guaranteeRarities;
+    }
+
+    public void guaranteeRarities(java.util.List<String> rarities) {
+        this.guaranteeRarities = new java.util.ArrayList<>(rarities);
     }
 
     public String id() {

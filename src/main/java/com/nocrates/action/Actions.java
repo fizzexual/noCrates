@@ -185,7 +185,7 @@ public final class Actions {
 
         register(new Simple("POTION_EFFECT", (ctx, args) -> {
             String[] p = args.split(";", -1);
-            PotionEffectType type = potionEffect(p[0]);
+            PotionEffectType type = Compat.potionEffect(p[0]);
             if (type == null) return;
             int duration = p.length > 1 ? parseInt(p[1], 5) : 5;
             int amplifier = p.length > 2 ? parseInt(p[2], 0) : 0;
@@ -210,25 +210,6 @@ public final class Actions {
         // [DELAY] is handled inline by runChain but registered so validate() accepts it.
         register(new Simple("DELAY", (ctx, args) -> {
         }));
-    }
-
-    private static final String[][] POTION_RENAMES = {
-            {"SLOW", "SLOWNESS"}, {"FAST_DIGGING", "HASTE"}, {"SLOW_DIGGING", "MINING_FATIGUE"},
-            {"INCREASE_DAMAGE", "STRENGTH"}, {"HEAL", "INSTANT_HEALTH"}, {"HARM", "INSTANT_DAMAGE"},
-            {"JUMP", "JUMP_BOOST"}, {"CONFUSION", "NAUSEA"}, {"DAMAGE_RESISTANCE", "RESISTANCE"}
-    };
-
-    @SuppressWarnings("deprecation")
-    private static PotionEffectType potionEffect(String name) {
-        String key = name.trim().toUpperCase(Locale.ROOT);
-        PotionEffectType type = PotionEffectType.getByName(key);
-        if (type != null) return type;
-        for (String[] pair : POTION_RENAMES) {
-            if (pair[0].equals(key)) type = PotionEffectType.getByName(pair[1]);
-            else if (pair[1].equals(key)) type = PotionEffectType.getByName(pair[0]);
-            if (type != null) return type;
-        }
-        return null;
     }
 
     private record Simple(String id, BiConsumer<ActionContext, String> fn) implements ActionType {

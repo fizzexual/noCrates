@@ -191,7 +191,7 @@ public final class OpenService {
             List<Reward> source = new ArrayList<>(pool);
             source.removeAll(rewards);
             if (source.isEmpty()) source = pool;
-            Reward roll = rollEngine.roll(source);
+            Reward roll = rollEngine.roll(source, com.nocrates.reward.Weights::of);
             if (roll == null) break;
             rewards.add(roll);
         }
