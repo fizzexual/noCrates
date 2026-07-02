@@ -40,24 +40,16 @@ public final class EditorHub extends Menu {
     }
 
     public static void register() {
-        com.nocrates.command.CratesCommand.registerExtra("editor", (sender, args) -> {
+        com.nocrates.command.CratesCommand.registerExtra("editor", "nocrates.editor", (sender, args) -> {
             if (!(sender instanceof Player player)) {
                 Services.get().lang().send(sender, "player-only");
-                return;
-            }
-            if (!player.hasPermission("nocrates.editor") && !player.hasPermission("nocrates.admin")) {
-                Services.get().lang().send(sender, "no-permission");
                 return;
             }
             new EditorHub(player).open();
-        });
-        com.nocrates.command.CratesCommand.registerExtra("edit", (sender, args) -> {
+        }, null);
+        com.nocrates.command.CratesCommand.registerExtra("edit", "nocrates.editor", (sender, args) -> {
             if (!(sender instanceof Player player)) {
                 Services.get().lang().send(sender, "player-only");
-                return;
-            }
-            if (!player.hasPermission("nocrates.editor") && !player.hasPermission("nocrates.admin")) {
-                Services.get().lang().send(sender, "no-permission");
                 return;
             }
             var crate = args.length > 0 ? Services.get().crates().get(args[0]) : null;
@@ -66,6 +58,7 @@ public final class EditorHub extends Menu {
             } else {
                 new CrateEditor(player, crate).open();
             }
-        });
+        }, (sender, args) -> args.length == 1
+                ? new java.util.ArrayList<>(Services.get().crates().ids()) : java.util.List.of());
     }
 }

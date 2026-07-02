@@ -111,8 +111,9 @@ public final class ApiImpl implements NoCratesApi {
     }
 
     @Override
-    public void registerCommand(String verb, BiConsumer<CommandSender, String[]> handler) {
-        CratesCommand.registerExtra(verb, handler);
+    public void registerCommand(String verb, String permission, BiConsumer<CommandSender, String[]> handler,
+                                BiFunction<CommandSender, String[], java.util.List<String>> completer) {
+        CratesCommand.registerExtra(verb, permission, handler, completer);
     }
 
     @Override

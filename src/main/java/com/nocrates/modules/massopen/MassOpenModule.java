@@ -28,7 +28,7 @@ public final class MassOpenModule extends Addon {
         allowAll = config().getBoolean("allow-all", true);
         allCap = Math.max(1, config().getInt("all-cap", 100));
 
-        api().registerCommand("massopen", (sender, args) -> {
+        api().registerCommand("massopen", null, (sender, args) -> {
             if (!(sender instanceof Player player)) {
                 api().lang().send(sender, "player-only");
                 return;
@@ -48,7 +48,8 @@ public final class MassOpenModule extends Addon {
                 return;
             }
             new MassOpenMenu(player, crate, this).open();
-        });
+        }, (sender, args) -> args.length == 1
+                ? new java.util.ArrayList<>(api().crates().ids()) : List.of());
     }
 
     public List<Integer> tiers() {

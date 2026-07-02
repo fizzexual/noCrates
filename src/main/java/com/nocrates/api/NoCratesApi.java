@@ -83,7 +83,18 @@ public interface NoCratesApi {
     void registerPlaceholder(String prefix, BiFunction<OfflinePlayer, String, String> resolver);
 
     /** Registers an extra /crates verb, e.g. "claim". */
-    void registerCommand(String verb, BiConsumer<org.bukkit.command.CommandSender, String[]> handler);
+    default void registerCommand(String verb, BiConsumer<org.bukkit.command.CommandSender, String[]> handler) {
+        registerCommand(verb, null, handler, null);
+    }
+
+    /**
+     * Full form: {@code permission} gates execution and hides the verb from tab
+     * suggestions; {@code completer} receives the args after the verb and returns
+     * candidates for the argument currently being typed.
+     */
+    void registerCommand(String verb, String permission,
+                         BiConsumer<org.bukkit.command.CommandSender, String[]> handler,
+                         BiFunction<org.bukkit.command.CommandSender, String[], java.util.List<String>> completer);
 
     /** Registers a custom-item namespace ("mynamespace:id" in ItemSpecs). */
     void registerCustomItems(CustomItemProvider provider);

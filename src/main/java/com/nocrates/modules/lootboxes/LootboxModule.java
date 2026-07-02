@@ -51,13 +51,9 @@ public final class LootboxModule extends Addon implements Listener {
     @Override
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(this, api().plugin());
-        api().registerCommand("lootbox", (sender, args) -> {
+        api().registerCommand("lootbox", "nocrates.command.givecrate", (sender, args) -> {
             if (args.length < 3 || !args[0].equalsIgnoreCase("give")) {
                 api().lang().send(sender, "unknown-command");
-                return;
-            }
-            if (!sender.hasPermission("nocrates.command.givecrate") && !sender.hasPermission("nocrates.admin")) {
-                api().lang().send(sender, "no-permission");
                 return;
             }
             Crate crate = api().crates().get(args[1]);
@@ -79,6 +75,13 @@ public final class LootboxModule extends Addon implements Listener {
                     Placeholder.unparsed("amount", String.valueOf(amount)),
                     Placeholder.unparsed("crate", crate.id() + (placeable ? " (placeable lootbox)" : " (lootbox)")),
                     Placeholder.unparsed("player", target.getName()));
+        }, (sender, args) -> switch (args.length) {
+            case 1 -> List.of("give");
+            case 2 -> new ArrayList<>(api().crates().ids());
+            case 3 -> com.nocrates.command.CratesCommand.playerNames();
+            case 4 -> com.nocrates.command.CratesCommand.amounts();
+            case 5 -> List.of("placeable");
+            default -> List.of();
         });
     }
 

@@ -32,11 +32,7 @@ public final class Migrations {
         register(new CrazyCratesImporter(pluginsDir, services.crates(), services.keys()));
         register(new ExcellentCratesImporter(pluginsDir, services.crates()));
 
-        com.nocrates.command.CratesCommand.registerExtra("migrate", (sender, args) -> {
-            if (!sender.hasPermission("nocrates.admin")) {
-                services.lang().send(sender, "no-permission");
-                return;
-            }
+        com.nocrates.command.CratesCommand.registerExtra("migrate", "nocrates.admin", (sender, args) -> {
             if (args.length == 0) {
                 services.lang().send(sender, "migrate-unknown",
                         Placeholder.unparsed("plugin", ""),
@@ -44,7 +40,8 @@ public final class Migrations {
                 return;
             }
             run(sender, args[0]);
-        });
+        }, (sender, args) -> args.length == 1
+                ? new java.util.ArrayList<>(IMPORTERS.keySet()) : java.util.List.of());
     }
 
     public static void run(CommandSender sender, String importerId) {

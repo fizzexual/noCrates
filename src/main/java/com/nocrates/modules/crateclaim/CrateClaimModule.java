@@ -20,17 +20,13 @@ public final class CrateClaimModule extends Addon {
             api().lang().send(player, "claim-stored", Placeholder.unparsed("count", "1"));
             return true;
         });
-        api().registerCommand("claim", (sender, args) -> {
+        api().registerCommand("claim", "nocrates.claim", (sender, args) -> {
             if (!(sender instanceof Player player)) {
                 api().lang().send(sender, "player-only");
                 return;
             }
-            if (!player.hasPermission("nocrates.claim")) {
-                api().lang().send(sender, "no-permission");
-                return;
-            }
             new ClaimMenu(player, api()).open();
-        });
+        }, null);
     }
 
     @Override

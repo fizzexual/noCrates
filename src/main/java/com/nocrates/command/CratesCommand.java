@@ -31,15 +31,28 @@ import java.util.function.BiConsumer;
 
 /**
  * /crates command tree (aliases: /crate, /nocrates, /nc). Modules and the editor
- * register extra verbs at enable time via {@link #registerExtra}.
+ * register extra verbs at enable time via {@link #registerExtra}; each verb may carry
+ * a gate permission and a tab completer so module commands feel native.
  */
 public final class CratesCommand implements TabExecutor {
 
-    private static final Map<String, BiConsumer<CommandSender, String[]>> EXTRA = new LinkedHashMap<>();
+    /** A module-registered verb: handler + optional gate permission + optional completer. */
+    public record Extra(BiConsumer<CommandSender, String[]> handler, String permission,
+                        java.util.function.BiFunction<CommandSender, String[], List<String>> completer) {
+    }
+
+    private static final Map<String, Extra> EXTRA = new LinkedHashMap<>();
 
     /** Lets modules add verbs like "claim", "massopen", "editor", "migrate". */
     public static void registerExtra(String verb, BiConsumer<CommandSender, String[]> handler) {
-        EXTRA.put(verb.toLowerCase(Locale.ROOT), handler);
+        registerExtra(verb, null, handler, null);
+    }
+
+    /** Full form: gate permission hides the verb from suggestions; completer suggests its args. */
+    public static void registerExtra(String verb, String permission,
+                                     BiConsumer<CommandSender, String[]> handler,
+                                     java.util.function.BiFunction<CommandSender, String[], List<String>> completer) {
+        EXTRA.put(verb.toLowerCase(Locale.ROOT), new Extra(handler, permission, completer));
     }
 
     @Override
@@ -52,9 +65,14 @@ public final class CratesCommand implements TabExecutor {
         String verb = args[0].toLowerCase(Locale.ROOT);
         String[] rest = Arrays.copyOfRange(args, 1, args.length);
 
-        BiConsumer<CommandSender, String[]> extra = EXTRA.get(verb);
+        Extra extra = EXTRA.get(verb);
         if (extra != null) {
-            extra.accept(sender, rest);
+            if (extra.permission() != null && !sender.hasPermission(extra.permission())
+                    && !sender.hasPermission("nocrates.admin")) {
+                lang.send(sender, "no-permission");
+                return true;
+            }
+            extra.handler().accept(sender, rest);
             return true;
         }
 
@@ -608,52 +626,203 @@ public final class CratesCommand implements TabExecutor {
 
     // --- tab completion ---
 
+    /** Built-in verb -> gate permission ("" = everyone). Admin bypasses everything. */
+    private static final Map<String, String> VERB_PERMISSIONS = new LinkedHashMap<>();
+
+    static {
+        VERB_PERMISSIONS.put("help", "");
+        VERB_PERMISSIONS.put("open", "");
+        VERB_PERMISSIONS.put("preview", "");
+        VERB_PERMISSIONS.put("virtualkeys", "nocrates.virtualkeys");
+        VERB_PERMISSIONS.put("stats", "");
+        VERB_PERMISSIONS.put("key", ""); // "key pay" is for everyone; admin subs filter below
+        VERB_PERMISSIONS.put("list", "nocrates.command.list");
+        VERB_PERMISSIONS.put("create", "nocrates.command.create");
+        VERB_PERMISSIONS.put("clone", "nocrates.command.create");
+        VERB_PERMISSIONS.put("delete", "nocrates.command.delete");
+        VERB_PERMISSIONS.put("enable", "nocrates.command.edit");
+        VERB_PERMISSIONS.put("disable", "nocrates.command.edit");
+        VERB_PERMISSIONS.put("attach", "nocrates.command.edit");
+        VERB_PERMISSIONS.put("detach", "nocrates.command.edit");
+        VERB_PERMISSIONS.put("placecrate", "nocrates.command.edit");
+        VERB_PERMISSIONS.put("givecrate", "nocrates.command.givecrate");
+        VERB_PERMISSIONS.put("givereward", "nocrates.command.givereward");
+        VERB_PERMISSIONS.put("giverandomreward", "nocrates.command.givereward");
+        VERB_PERMISSIONS.put("reroll", "nocrates.command.givereroll");
+        VERB_PERMISSIONS.put("resetcooldown", "nocrates.command.resetcooldown");
+        VERB_PERMISSIONS.put("resetwinlimit", "nocrates.command.resetcooldown");
+        VERB_PERMISSIONS.put("reload", "nocrates.command.reload");
+    }
+
+    private static boolean canSee(CommandSender sender, String permission) {
+        return permission == null || permission.isEmpty()
+                || sender.hasPermission(permission) || sender.hasPermission("nocrates.admin");
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        var services = Services.get();
         List<String> out = new ArrayList<>();
+        if (args.length == 0) return out;
         if (args.length == 1) {
-            List<String> verbs = new ArrayList<>(List.of(
-                    "help", "open", "preview", "virtualkeys", "list", "stats",
-                    "create", "delete", "clone", "enable", "disable", "edit", "editor",
-                    "givecrate", "placecrate", "attach", "detach",
-                    "givereward", "giverandomreward", "key", "reroll",
-                    "resetcooldown", "resetwinlimit", "reload"));
-            verbs.addAll(EXTRA.keySet());
+            List<String> verbs = new ArrayList<>();
+            VERB_PERMISSIONS.forEach((verb, permission) -> {
+                if (canSee(sender, permission)) verbs.add(verb);
+            });
+            EXTRA.forEach((verb, extra) -> {
+                if (canSee(sender, extra.permission())) verbs.add(verb);
+            });
             return StringUtil.copyPartialMatches(args[0], verbs, out);
         }
+
         String verb = args[0].toLowerCase(Locale.ROOT);
-        if (args.length == 2) {
-            switch (verb) {
-                case "open", "preview", "delete", "clone", "enable", "disable", "edit", "givecrate",
-                        "placecrate", "attach", "givereward", "giverandomreward", "resetcooldown", "massopen" ->
-                        StringUtil.copyPartialMatches(args[1], services.crates().ids(), out);
-                case "key" -> StringUtil.copyPartialMatches(args[1],
-                        List.of("give", "giveall", "take", "set", "check", "pay"), out);
-                case "reroll" -> StringUtil.copyPartialMatches(args[1], List.of("give", "take"), out);
-                case "resetwinlimit" -> StringUtil.copyPartialMatches(args[1], List.of("player", "global"), out);
-                default -> {
+        String last = args[args.length - 1];
+
+        Extra extra = EXTRA.get(verb);
+        if (extra != null) {
+            if (!canSee(sender, extra.permission()) || extra.completer() == null) return out;
+            List<String> candidates = extra.completer().apply(sender, Arrays.copyOfRange(args, 1, args.length));
+            return candidates == null ? out : StringUtil.copyPartialMatches(last, candidates, out);
+        }
+        if (!canSee(sender, VERB_PERMISSIONS.getOrDefault(verb, ""))) return out;
+
+        return StringUtil.copyPartialMatches(last, builtinCandidates(sender, verb, args), out);
+    }
+
+    /** Candidates for the CURRENT (last) argument of a built-in verb. */
+    private List<String> builtinCandidates(CommandSender sender, String verb, String[] args) {
+        var services = Services.get();
+        int pos = args.length; // 2 = first arg after the verb
+        switch (verb) {
+            case "open", "preview" -> {
+                if (pos == 2) return crateIds();
+                if (pos == 3 && canSee(sender, "nocrates.command.open")) return playerNames();
+            }
+            case "delete", "enable", "disable", "attach" -> {
+                if (pos == 2) return crateIds();
+            }
+            case "clone" -> {
+                if (pos == 2) return crateIds();
+                if (pos == 3) return List.of("<new-id>");
+            }
+            case "create" -> {
+                if (pos == 2) return List.of("<new-id>");
+            }
+            case "stats" -> {
+                if (pos == 2) return playerNames();
+            }
+            case "givecrate" -> {
+                if (pos == 2) return crateIds();
+                if (pos == 3) return playerNames();
+                if (pos == 4) return amounts();
+            }
+            case "placecrate" -> {
+                if (pos == 2) return crateIds();
+                if (pos == 3) return worldNames();
+                if (pos >= 4 && pos <= 6 && sender instanceof Player player) {
+                    var block = player.getLocation();
+                    return switch (pos) {
+                        case 4 -> List.of(String.valueOf(block.getBlockX()));
+                        case 5 -> List.of(String.valueOf(block.getBlockY()));
+                        default -> List.of(String.valueOf(block.getBlockZ()));
+                    };
                 }
             }
-            return out;
-        }
-        if (args.length == 3) {
-            switch (verb) {
-                case "key" -> StringUtil.copyPartialMatches(args[2],
-                        services.keys().all().stream().map(Key::id).toList(), out);
-                case "reroll", "resetwinlimit" ->
-                        StringUtil.copyPartialMatches(args[2], services.crates().ids(), out);
-                case "givereward" -> {
-                    Crate crate = services.crates().get(args[1]);
-                    if (crate != null) {
-                        StringUtil.copyPartialMatches(args[2], crate.rewards().keySet(), out);
-                    }
-                }
-                default -> {
-                }
+            case "givereward" -> {
+                if (pos == 2) return crateIds();
+                if (pos == 3) return rewardIds(args[1]);
+                if (pos == 4) return playersPlusAll();
             }
-            return out;
+            case "giverandomreward" -> {
+                if (pos == 2) return crateIds();
+                if (pos == 3) return playersPlusAll();
+            }
+            case "key" -> {
+                return keyCandidates(sender, args, pos);
+            }
+            case "reroll" -> {
+                if (pos == 2) return List.of("give", "take");
+                if (pos == 3) return crateIds();
+                if (pos == 4) return playerNames();
+                if (pos == 5) return amounts();
+            }
+            case "resetcooldown" -> {
+                if (pos == 2) return crateIds();
+                if (pos == 3) return playerNames();
+            }
+            case "resetwinlimit" -> {
+                if (pos == 2) return List.of("player", "global");
+                if (pos == 3) return crateIds();
+                if (pos == 4 && args[1].equalsIgnoreCase("player")) return playerNames();
+            }
+            default -> {
+            }
         }
-        return out;
+        return List.of();
+    }
+
+    private List<String> keyCandidates(CommandSender sender, String[] args, int pos) {
+        boolean admin = canSee(sender, "nocrates.command.givekey");
+        if (pos == 2) {
+            List<String> subs = new ArrayList<>(List.of("pay"));
+            if (admin) subs.addAll(List.of("give", "giveall", "take", "set", "check"));
+            return subs;
+        }
+        String sub = args[1].toLowerCase(Locale.ROOT);
+        switch (sub) {
+            case "give", "take", "set", "pay" -> {
+                if (pos == 3) return keyIds();
+                if (pos == 4) return playerNames();
+                if (pos == 5) return amounts();
+                if (pos == 6 && sub.equals("give")) return List.of("physical");
+            }
+            case "giveall" -> {
+                if (pos == 3) return keyIds();
+                if (pos == 4) return amounts();
+            }
+            case "check" -> {
+                if (pos == 3) return playerNames();
+            }
+            default -> {
+            }
+        }
+        return List.of();
+    }
+
+    // --- candidate pools ---
+
+    private List<String> crateIds() {
+        return new ArrayList<>(Services.get().crates().ids());
+    }
+
+    private List<String> keyIds() {
+        return Services.get().keys().all().stream().map(Key::id).toList();
+    }
+
+    private List<String> rewardIds(String crateId) {
+        Crate crate = Services.get().crates().get(crateId);
+        return crate == null ? List.of() : new ArrayList<>(crate.rewards().keySet());
+    }
+
+    /** Online player names — the standard suggestion for every player argument. */
+    public static List<String> playerNames() {
+        List<String> names = new ArrayList<>();
+        for (Player player : Bukkit.getOnlinePlayers()) names.add(player.getName());
+        return names;
+    }
+
+    private List<String> playersPlusAll() {
+        List<String> names = playerNames();
+        names.add("all");
+        return names;
+    }
+
+    public static List<String> amounts() {
+        return List.of("1", "3", "5", "10", "16", "32", "64");
+    }
+
+    private List<String> worldNames() {
+        List<String> names = new ArrayList<>();
+        for (var world : Bukkit.getWorlds()) names.add(world.getName());
+        return names;
     }
 }
