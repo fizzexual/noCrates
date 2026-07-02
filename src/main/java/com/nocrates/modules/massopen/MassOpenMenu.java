@@ -99,7 +99,27 @@ public final class MassOpenMenu extends Menu {
 
     private void massOpen(int times) {
         var services = Services.get();
-        if (times <= 0 || !services.keyService().consume(viewer, scaled(times))) {
+        if (times <= 0 || !services.keyService().has(viewer, scaled(times))) {
+            services.lang().send(viewer, "massopen-no-keys",
+                    Placeholder.unparsed("amount", String.valueOf(Math.max(1, times))));
+            return;
+        }
+        // Paid crates stay paid in bulk: charge cost * times up front.
+        double totalCost = crate.open().cost() * times;
+        if (totalCost > 0 && com.nocrates.hook.VaultHook.ready()) {
+            if (!com.nocrates.hook.VaultHook.withdraw(viewer, totalCost)) {
+                services.lang().send(viewer, "open-not-enough-money",
+                        Placeholder.unparsed("cost", com.nocrates.hook.VaultHook.format(totalCost)));
+                return;
+            }
+            services.lang().send(viewer, "open-cost-charged",
+                    Placeholder.unparsed("cost", com.nocrates.hook.VaultHook.format(totalCost)));
+        }
+        if (!services.keyService().consume(viewer, scaled(times))) {
+            // keys changed between check and consume (race) — refund the money
+            if (totalCost > 0 && com.nocrates.hook.VaultHook.ready()) {
+                com.nocrates.hook.VaultHook.deposit(viewer, totalCost);
+            }
             services.lang().send(viewer, "massopen-no-keys",
                     Placeholder.unparsed("amount", String.valueOf(Math.max(1, times))));
             return;

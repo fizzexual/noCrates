@@ -1,0 +1,89 @@
+# EXAMPLE: SELECTIVE mode — a non-gambling "token shop" crate.
+# Players open it and CHOOSE their reward; each choice costs its own number of tokens
+# (selective-cost multiplies the crate's key requirement).
+#
+# Try it:
+#   /crates key give token <you> 20
+#   /crates open shop          (or right-click a placed shop crate)
+enabled: true
+display-name: "<gradient:#31d0aa:#2f6fed><bold>Token Shop</bold></gradient>"
+
+engine:
+  type: BLOCK
+  block-material: ENDER_CHEST
+
+locations: []
+
+permission:
+  required: false
+  node: nocrates.crate.shop
+
+open:
+  cost: 0.0
+  cooldown-seconds: 0
+  quick-open: true
+  simultaneous: true
+  knockback: false          # a shop shouldn't shove customers
+
+keys:
+  - key: token              # virtual-only key (see keys.yml)
+    amount: 1
+    priority: 0
+
+hologram:
+  lines:
+    - "<gradient:#31d0aa:#2f6fed><bold>TOKEN SHOP</bold></gradient>"
+    - "<gray>Pick exactly what you want"
+    - "<aqua>Tokens: <white>%nocrates_keys_token%"
+  offset: 1.6
+
+preview:
+  enabled: true
+  menu: preview
+
+rewards-mode: SELECTIVE     # <-- the whole point of this example
+max-win-rewards: 1
+
+animation:                  # selective mode grants instantly; idle aura still shows
+  idle:
+    - "CIRCLE;{DUST;#31d0aa;0;1.2;0;0.6;0;1}"
+  pre-open: DEFAULT
+  post-open: BALL
+  reward-display: DEFAULT
+
+rewards:
+  bread_bundle:
+    percentage: 1           # weights are ignored in SELECTIVE mode; keep any value
+    selective-cost: 1       # costs 1 token
+    display-item: { material: BREAD, amount: 16, name: "<yellow>16 Bread" }
+    win-items:
+      '0': { material: BREAD, amount: 16 }
+  diamond_pick:
+    percentage: 1
+    selective-cost: 3       # costs 3 tokens
+    display-item:
+      material: DIAMOND_PICKAXE
+      name: "<aqua>Efficient Pickaxe"
+      enchants: { EFFICIENCY: 3, UNBREAKING: 2 }
+    win-items:
+      '0':
+        material: DIAMOND_PICKAXE
+        name: "<aqua>Efficient Pickaxe"
+        enchants: { EFFICIENCY: 3, UNBREAKING: 2 }
+  fly_hour:
+    percentage: 1
+    selective-cost: 10      # costs 10 tokens
+    virtual: true
+    display-item: { material: FEATHER, name: "<light_purple>1 Hour of /fly", glow: true }
+    win-commands:
+      - "lp user %player% permission settemp essentials.fly true 1h"
+
+guaranteed:
+  enabled: false
+  mode: REPETITIVE
+  milestones: []
+
+reroll:
+  enabled: false
+  free: 0
+  groups: {}

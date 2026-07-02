@@ -1,0 +1,89 @@
+# EXAMPLE: keyless daily crate + lootboxes (lootboxes module).
+# No key requirement at all — the 24h cooldown is the gate. Great as a placed
+# "free daily" crate in spawn, and the same crate powers one-shot lootbox items:
+#
+#   /crates attach daily                       -> a daily-reward crate at spawn
+#   /crates lootbox give daily <player> 3      -> 3 placeable one-shot boxes
+#     (players place the box anywhere, the animation plays, the box disappears)
+enabled: true
+display-name: "<gradient:#2f6fed:#31d0aa><bold>Daily Crate</bold></gradient>"
+
+engine:
+  type: BLOCK
+  block-material: BARREL
+
+locations: []
+
+permission:
+  required: false
+  node: nocrates.crate.daily
+
+open:
+  cost: 0.0
+  cooldown-seconds: 86400    # once a day per player when opened as a placed crate.
+  quick-open: true           # (lootbox ITEMS skip cooldowns — they're one-shot by nature)
+  simultaneous: true
+  knockback: false
+
+keys: []                     # <-- keyless: anyone can open when off cooldown
+
+hologram:
+  lines:
+    - "<gradient:#2f6fed:#31d0aa><bold>DAILY CRATE</bold></gradient>"
+    - "<gray>Free! Come back every day."
+    - "<gray>Next open: <yellow>%nocrates_cooldown_daily%"
+  offset: 1.6
+
+preview:
+  enabled: true
+  menu: preview
+
+rewards-mode: RANDOM
+max-win-rewards: 1
+
+animation:
+  idle:
+    - "FLOWER;{DUST;#2f6fed;0;0.2;0;1.0;0;2}"
+  pre-open: DEFAULT
+  post-open: COMPACT
+  reward-display: GUI_CSGO   # spinner in a menu — perfect for command/virtual opens too
+  pre-delay-ticks: 20
+  post-delay-ticks: 25
+
+rewards:
+  coins:
+    percentage: 50.0
+    virtual: true
+    display-item: { material: SUNFLOWER, name: "<yellow>$250" }
+    win-commands:
+      - "eco give %player% 250"
+  golden_carrots:
+    percentage: 30.0
+    display-item: { material: GOLDEN_CARROT, amount: 8, name: "<gold>8 Golden Carrots" }
+    win-items:
+      '0': { material: GOLDEN_CARROT, amount: 8 }
+  shop_token:
+    percentage: 15.0
+    virtual: true
+    display-item: { material: SUNFLOWER, name: "<aqua>1 Shop Token", glow: true }
+    win-commands:
+      - "crates key give token %player% 1"     # feeds the SELECTIVE shop example
+  jackpot:
+    percentage: 5.0
+    virtual: true
+    broadcast: true
+    display-item: { material: NETHER_STAR, name: "<light_purple><bold>Daily Jackpot</bold>", glow: true }
+    win-commands:
+      - "eco give %player% 5000"
+
+guaranteed:
+  enabled: true
+  mode: REPETITIVE
+  milestones:
+    - openings: 7            # a full week of dailies guarantees the jackpot
+      reward: jackpot
+
+reroll:
+  enabled: false
+  free: 0
+  groups: {}

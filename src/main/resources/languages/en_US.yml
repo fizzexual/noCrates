@@ -104,7 +104,6 @@ chesthunt-picked: "<gray>You picked a chest: <white><reward></white> <gray>(<rem
 chesthunt-over: "<gray>The chest hunt is over."
 
 # --- menus / previews ---
-preview-lore-weight: "<dark_gray>Weight: <gray><weight>"
 preview-lore-chance: "<gray>Chance: <yellow><chance>%"
 selective-lore-cost: "<gray>Cost: <yellow><cost> key(s)"
 selective-lore-pick: "<green>Click to choose this reward!"

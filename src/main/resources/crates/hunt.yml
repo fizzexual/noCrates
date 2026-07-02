@@ -1,0 +1,87 @@
+# EXAMPLE: Chest Hunt (chest-hunt module) — opening this crate spawns temporary chests
+# around you; open up to K of them and every chest grants its own independent roll.
+# Grid size / chest count / picks / timeout live in modules.yml under "chest-hunt".
+#
+# Try it:
+#   /crates key give vote <you> 5
+#   /crates attach hunt        (then right-click it in an open area)
+enabled: true
+display-name: "<gradient:#3ddc84:#ffc145><bold>Hunt Crate</bold></gradient>"
+
+engine:
+  type: BLOCK
+  block-material: TRAPPED_CHEST
+
+locations: []
+
+permission:
+  required: false
+  node: nocrates.crate.hunt
+
+open:
+  cost: 0.0
+  cooldown-seconds: 60      # the hunt is strong — one per minute
+  quick-open: false         # quick-open would skip the fun
+  simultaneous: true
+  knockback: true
+
+keys:
+  - key: vote
+    amount: 2               # demonstrates amounts > 1 on a key link
+    priority: 0
+
+hologram:
+  lines:
+    - "<gradient:#3ddc84:#ffc145><bold>CHEST HUNT</bold></gradient>"
+    - "<gray>Costs <yellow>2 Vote Keys</yellow>"
+    - "<gray>Open the chests that appear around you!"
+  offset: 1.6
+
+preview:
+  enabled: true
+  menu: preview
+
+rewards-mode: RANDOM
+max-win-rewards: 1
+
+animation:
+  idle:
+    - "SQUARE;{HAPPY_VILLAGER;;0;0.2;0;1.0;0;1}"
+  pre-open: CRACK
+  post-open: SWIRL
+  reward-display: CHEST_HUNT   # <-- the chest-hunt module registers this display
+  pre-delay-ticks: 20
+  post-delay-ticks: 20
+
+rewards:
+  arrows:
+    percentage: 35.0
+    display-item: { material: ARROW, amount: 32, name: "<white>32 Arrows" }
+    win-items:
+      '0': { material: ARROW, amount: 32 }
+  cooked_beef:
+    percentage: 35.0
+    display-item: { material: COOKED_BEEF, amount: 16, name: "<red>16 Steak" }
+    win-items:
+      '0': { material: COOKED_BEEF, amount: 16 }
+  xp_bomb:
+    percentage: 20.0
+    virtual: true
+    display-item: { material: EXPERIENCE_BOTTLE, name: "<green>+30 Levels" }
+    win-commands:
+      - "xp add %player% 30 levels"
+  treasure:
+    percentage: 10.0
+    display-item: { material: DIAMOND_BLOCK, name: "<aqua>Diamond Block", glow: true }
+    win-items:
+      '0': { material: DIAMOND_BLOCK, amount: 1 }
+
+guaranteed:
+  enabled: false
+  mode: REPETITIVE
+  milestones: []
+
+reroll:
+  enabled: false
+  free: 0
+  groups: {}

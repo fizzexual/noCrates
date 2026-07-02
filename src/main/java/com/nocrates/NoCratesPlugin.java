@@ -39,7 +39,9 @@ public final class NoCratesPlugin extends JavaPlugin {
         saveDefaultResource("modules.yml");
         saveDefaultResource("keys.yml");
         saveDefaultResource("rarities.yml");
-        saveDefaultResource("crates/example.yml");
+        for (String crate : new String[]{"example", "shop", "legendary", "hunt", "daily", "showcase"}) {
+            saveDefaultResource("crates/" + crate + ".yml");
+        }
         for (String menu : MenuConfig.DEFAULTS) saveDefaultResource("menus/" + menu + ".yml");
         for (String code : LANGUAGES) saveDefaultResource("languages/" + code + ".yml");
 

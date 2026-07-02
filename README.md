@@ -77,11 +77,24 @@ Shapes: `CIRCLE SPIRAL CONICAL_SPIRAL STAR NINJA_STAR SQUARE DIAMOND ASTROID DEL
 ## 🚀 Quick start
 
 1. Drop the jar from [Releases](https://github.com/fizzexual/noCrates/releases/latest) into `plugins/` on **Paper 1.20+** (Purpur and Folia work too) and restart.
-2. `/crates editor` → **Crates → Create** — or copy `crates/example.yml` (it documents every option).
+2. `/crates editor` → **Crates → Create** — or copy one of the example crates below.
 3. Give yourself keys: `/crates key give vote <you> 10`.
 4. Look at a block and `/crates attach <crate>` — right-click opens (sneak-click = quick open), left-click previews.
 
 A placed crate gets its hologram, idle aura and native chest-lid animation automatically; or switch the engine to `MODEL` for a floating item-display crate (CustomModelData / `item_model` supported).
+
+### 📦 Six ready-made example crates
+
+Fresh installs ship one fully-commented example per feature — open them in `crates/`, copy, tweak:
+
+| Crate | Demonstrates | Try it |
+|---|---|---|
+| `example` | The basics: weighted rewards, alternative reward, repetitive pity | `/crates key give vote <you> 5` |
+| `shop` | **SELECTIVE** pick-your-reward mode with virtual token currency | `/crates key give token <you> 20` → `/crates open shop` |
+| `legendary` | Paid opens + confirmation, rarities, **sequential milestones**, rerolls, win limits, restricted perms + alternative, 2 rewards/open, legendary-guarantee key | `/crates key give premium <you> 5 physical` |
+| `hunt` | **Chest Hunt** — temporary chests spawn around you, pick 4 of 8 | `/crates attach hunt` in an open area |
+| `daily` | **Keyless** crate on a 24h cooldown + **lootbox** one-shot items + GUI spinner | `/crates lootbox give daily <you> 3` |
+| `showcase` | **MODEL** engine (floating crate) + animations-plus circus (chicken jockey → black hole), 3 rewards per open, layered idle auras | `/crates open showcase` |
 
 ## ⌨ Commands & permissions
 

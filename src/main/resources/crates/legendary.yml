@@ -1,0 +1,113 @@
+# EXAMPLE: the "everything" crate — paid opens, rarities, sequential milestones,
+# rerolls, win limits, restricted permissions with an alternative reward, multiple
+# rewards per opening, and the premium key's legendary guarantee.
+#
+# Try it:
+#   /crates key give premium <you> 5 physical
+#   /crates attach legendary          (while looking at a block)
+#   /crates massopen legendary        (mass-opening module tiers)
+enabled: true
+display-name: "<gradient:#ffc145:#ff5ca8><bold>Legendary Crate</bold></gradient>"
+
+engine:
+  type: BLOCK
+  block-material: CHEST     # chests play their native lid animation
+
+locations: []
+
+permission:
+  required: false
+  node: nocrates.crate.legendary
+
+open:
+  cost: 2500.0              # Vault money per open — players get a confirmation menu
+  cooldown-seconds: 30
+  quick-open: true          # sneak + right-click skips the show
+  simultaneous: false       # one opener at a time on this placement
+  knockback: true
+
+keys:
+  - key: premium            # guarantee-rarity: [legendary] lives on the key (keys.yml)
+    amount: 1
+    priority: 0
+
+hologram:
+  lines:
+    - "<gradient:#ffc145:#ff5ca8><bold>LEGENDARY CRATE</bold></gradient>"
+    - "<gray>Costs <gold>$2,500</gold> + 1 <gold>Premium Key</gold>"
+    - "<gray>Guaranteed reward in <yellow>%nocrates_guaranteed_amount_legendary%</yellow> opens"
+  offset: 1.8
+
+preview:
+  enabled: true
+  menu: preview
+
+rewards-mode: RANDOM
+max-win-rewards: 2          # every opening grants TWO rewards
+
+animation:
+  idle:
+    - "STAR;{DUST;#ffc145;0;0.1;0;1.1;0;2}"
+    - "PULSE;{END_ROD;;0;0.1;0;1.6;0.02;1}"
+  pre-open: KEY_OPENER      # the premium key visibly unlocks the crate
+  post-open: PHYSICAL_CSGO  # vertical reward reel above the crate
+  reward-display: FIREWORK
+  pre-delay-ticks: 40
+  post-delay-ticks: 50
+  display-duration-ticks: 80
+
+rewards:
+  emeralds:
+    percentage: 40.0
+    rarity: common
+    display-item: { material: EMERALD, amount: 16, name: "<green>16 Emeralds" }
+    win-items:
+      '0': { material: EMERALD, amount: 16 }
+  netherite_ingot:
+    percentage: 30.0
+    rarity: rare
+    display-item: { material: NETHERITE_INGOT, amount: 2, name: "<dark_purple>2 Netherite Ingots" }
+    win-items:
+      '0': { material: NETHERITE_INGOT, amount: 2 }
+  money_pile:
+    percentage: 20.0
+    rarity: epic
+    virtual: true
+    display-item: { material: GOLD_BLOCK, name: "<gold>$10,000", lore: ["<gray>Straight to your balance"] }
+    win-commands:
+      - "eco give %player% 10000"
+  mvp_rank:
+    percentage: 10.0
+    rarity: legendary       # what the premium key guarantees
+    virtual: true
+    broadcast: true         # announced to the whole server
+    display-item: { material: DRAGON_EGG, name: "<gold><bold>MVP Rank</bold>", glow: true }
+    win-commands:
+      - "lp user %player% parent add mvp"
+    win-limits:
+      player: 1             # once per player...
+      global: 10            # ...and only 10 server-wide
+      global-cooldown: 604800   # counter reopens a week after the 10th win
+    restricted-permissions:
+      - group.mvp           # already MVP? you get the alternative instead:
+    alternative-reward:
+      enabled: true
+      display-name: "<gold>$50,000 (MVP owned)"
+      virtual: true
+      commands:
+        - "eco give %player% 50000"
+
+guaranteed:
+  enabled: true
+  mode: SEQUENTIAL          # one-time thresholds, in order
+  milestones:
+    - openings: 10
+      reward: money_pile
+    - openings: 50
+      reward: mvp_rank
+
+reroll:
+  enabled: true
+  free: 1                   # everyone may reroll once per opening
+  groups:
+    vip: 2                  # nocrates.reroll.vip adds two more

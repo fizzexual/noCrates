@@ -70,8 +70,8 @@ public final class PreviewMenu extends Menu {
             lore.add(Component.empty());
             String rarity = com.nocrates.reward.RarityDisplays.get(reward.rarity());
             if (rarity != null) lore.add(Text.mm(rarity));
-            lore.add(Text.mm(lang.rawString("preview-lore-weight")
-                    .replace("<weight>", trim(com.nocrates.reward.Weights.of(reward)))));
+            // Players only ever see the real, normalized chance — raw weights are
+            // an admin concept and stay in the editor.
             lore.add(Text.mm(lang.rawString("preview-lore-chance")
                     .replace("<chance>", trim(crate.normalizedChance(reward)))));
             meta.lore(lore);

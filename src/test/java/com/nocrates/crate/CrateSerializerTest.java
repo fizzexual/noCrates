@@ -48,6 +48,27 @@ class CrateSerializerTest {
     }
 
     @Test
+    void everyShippedExampleCrateParses() {
+        String[] shipped = {"example", "shop", "legendary", "hunt", "daily", "showcase"};
+        for (String name : shipped) {
+            var in = getClass().getClassLoader().getResourceAsStream("crates/" + name + ".yml");
+            assertNotNull(in, name + ".yml resource missing");
+            var yml = YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
+            Crate crate = CrateSerializer.read(name, yml);
+            assertEquals(name, crate.id());
+            assertTrue(crate.rewards().size() >= 3, name + " should ship at least 3 rewards");
+            // round-trip must not lose rewards or animation selection
+            YamlConfiguration out = new YamlConfiguration();
+            CrateSerializer.write(crate, out);
+            Crate reread = CrateSerializer.read(name, out);
+            assertEquals(crate.rewards().keySet(), reread.rewards().keySet(), name);
+            assertEquals(crate.animation().rewardDisplay(), reread.animation().rewardDisplay(), name);
+            assertEquals(crate.rewardsMode(), reread.rewardsMode(), name);
+            assertEquals(crate.keys(), reread.keys(), name);
+        }
+    }
+
+    @Test
     void roundTripPreservesModel() {
         Crate crate = loadExample();
         YamlConfiguration out = new YamlConfiguration();

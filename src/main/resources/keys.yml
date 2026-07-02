@@ -1,5 +1,6 @@
 # Keys are first-class: one key can open many crates, one crate can require several keys
 # (see the crate file's "keys:" list). virtual: true disables the physical item entirely.
+# guarantee-rarity makes a key always drop a reward from those rarity tiers (rarities module).
 keys:
   vote:
     virtual: false
@@ -9,4 +10,26 @@ keys:
       lore:
         - "<gray>Opens the <white>Vote Crate</white>"
         - "<gray>Get keys by voting!"
+      glow: true
+
+  # Always drops a LEGENDARY-tier reward from crates that use rarities (see legendary.yml).
+  premium:
+    virtual: false
+    guarantee-rarity: [legendary]
+    item:
+      material: GOLD_INGOT
+      name: "<gold><bold>Premium Key</bold>"
+      lore:
+        - "<gray>Opens the <gold>Legendary Crate</gold>"
+        - "<gold>Guarantees a legendary reward!"
+      glow: true
+
+  # Virtual-only currency for the SELECTIVE (pick-your-reward) shop crate.
+  token:
+    virtual: true
+    item:
+      material: SUNFLOWER
+      name: "<aqua>Token"
+      lore:
+        - "<gray>Spend tokens in <white>/crates open shop</white>"
       glow: true

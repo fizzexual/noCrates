@@ -1,0 +1,94 @@
+# EXAMPLE: the animation circus — every phase uses an animations-plus module effect
+# and the crate is a floating MODEL (item display) instead of a block.
+# Use it to demo animations to your builders, then copy what you like elsewhere.
+#
+# Try it:
+#   /crates attach showcase       (bind to a barrier block for a "floating" crate)
+#   /crates open showcase         (works virtually too — anchored at you)
+# Swap animations live in /crates editor -> showcase -> Animations.
+enabled: true
+display-name: "<gradient:#7b5cff:#ff5ca8><bold>Showcase Crate</bold></gradient>"
+
+engine:
+  type: MODEL                # rendered as a floating item display
+  block-material: BARRIER    # the physical block under it (invisible)
+  model-item:
+    material: ENDER_CHEST    # swap for custom-model-data or a custom item, e.g.
+    # custom-model-data: 1234
+    # custom-item: "itemsadder:mythic_crate"
+  model-y-offset: 0.15
+  model-yaw: 45.0
+
+locations: []
+
+permission:
+  required: false
+  node: nocrates.crate.showcase
+
+open:
+  cost: 0.0
+  cooldown-seconds: 0
+  quick-open: true
+  simultaneous: true
+  knockback: false
+
+keys:
+  - key: vote
+    amount: 1
+    priority: 0
+
+hologram:
+  lines:
+    - "<gradient:#7b5cff:#ff5ca8><bold>SHOWCASE</bold></gradient>"
+    - "<gray>Chicken jockey → black hole → loot"
+  offset: 2.0
+
+preview:
+  enabled: true
+  menu: preview
+
+rewards-mode: RANDOM
+max-win-rewards: 3           # three rewards fanned out in the display phase
+
+animation:
+  idle:                      # layered aura: two shapes at different heights
+    - "CONICAL_SPIRAL;{DUST;#7b5cff;0;0;0;1.2;0;2}"
+    - "QUATREFOIL;{CHERRY_LEAVES;;0;1.6;0;0.8;0.01;1}"
+  pre-open: CHICKEN_JOCKEY   # animations-plus module
+  post-open: BLACK_HOLE      # animations-plus module
+  reward-display: PHYSICAL_ITEM
+  pre-delay-ticks: 50
+  post-delay-ticks: 45
+  display-duration-ticks: 70
+
+rewards:
+  fireworks:
+    percentage: 40.0
+    display-item: { material: FIREWORK_ROCKET, amount: 12, name: "<red>12 Fireworks" }
+    win-items:
+      '0': { material: FIREWORK_ROCKET, amount: 12 }
+  music_disc:
+    percentage: 30.0
+    display-item: { material: MUSIC_DISC_CAT, name: "<green>Music Disc" }
+    win-items:
+      '0': { material: MUSIC_DISC_CAT }
+  ender_pearls:
+    percentage: 20.0
+    display-item: { material: ENDER_PEARL, amount: 8, name: "<dark_purple>8 Ender Pearls" }
+    win-items:
+      '0': { material: ENDER_PEARL, amount: 8 }
+  elytra:
+    percentage: 10.0
+    display-item: { material: ELYTRA, name: "<light_purple><bold>Elytra</bold>", glow: true }
+    win-items:
+      '0': { material: ELYTRA, unbreakable: true }
+
+guaranteed:
+  enabled: false
+  mode: REPETITIVE
+  milestones: []
+
+reroll:
+  enabled: false
+  free: 0
+  groups: {}
