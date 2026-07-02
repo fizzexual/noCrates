@@ -82,6 +82,13 @@ claim-all-button: "<green><bold>Claim everything</bold>"
 
 # --- lootboxes ---
 lootbox-lore: "<gray>Place me to open!"
+lootbox-item-name: "<name> <gray>(Right Click)"
+lootbox-lore-hint-1: "<gray>Right click this lootbox to receive"
+lootbox-lore-hint-2: "<yellow><count> Random Rewards <gray>+ the guaranteed items!"
+lootbox-lore-guaranteed: "<gold><bold>Guaranteed Items</bold>"
+lootbox-lore-rewards: "<light_purple><bold>Possible Rewards</bold>"
+lootbox-lore-entry: " <dark_gray>• <white><amount>x</white> <name>"
+lootbox-opened: "<gray>You opened <white><crate></white><gray>! You received:"
 
 # --- migrate ---
 migrate-started: "<gray>Importing from <white><plugin></white>..."
@@ -105,6 +112,7 @@ chesthunt-over: "<gray>The chest hunt is over."
 
 # --- menus / previews ---
 preview-lore-chance: "<gray>Chance: <yellow><chance>%"
+preview-lore-guaranteed: "<gold>Guaranteed on every open!"
 selective-lore-cost: "<gray>Cost: <yellow><cost> key(s)"
 selective-lore-pick: "<green>Click to choose this reward!"
 selective-lore-blocked: "<red>Not available for you right now."

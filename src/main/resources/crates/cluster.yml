@@ -1,0 +1,201 @@
+# EXAMPLE: the "Cluster" right-click lootbox — an inventory item players right-click
+# to instantly receive 4 random rewards PLUS every "always" reward (the Guaranteed
+# Items section of the item's lore). The lore is generated automatically from this
+# file: hint lines, then Guaranteed Items, then Possible Rewards with amounts.
+#
+# Try it:
+#   /crates lootbox give cluster <player> 3            -> 3 right-click lootboxes
+#   /crates lootbox give cluster <player> 3 placeable  -> the placeable variant instead
+#
+# "always: true" rewards are granted on EVERY open and never enter the random pool.
+# Swap the win-commands for your own rank/pet/title plugins.
+enabled: true
+display-name: "<gradient:#a855f7:#22d3ee><bold>Lootbox: Cluster</bold></gradient>"
+
+engine:
+  type: BLOCK
+  block-material: PURPLE_SHULKER_BOX   # also the material of the lootbox item
+
+locations: []
+
+permission:
+  required: false
+  node: nocrates.crate.cluster
+
+open:
+  cost: 0.0
+  cooldown-seconds: 0     # the lootbox item itself is the limit — no key, no cooldown
+  quick-open: true
+  simultaneous: true
+  knockback: false
+
+keys: []                  # keyless: this crate exists to power lootbox items
+
+hologram:
+  lines:
+    - "<gradient:#a855f7:#22d3ee><bold>CLUSTER LOOTBOX</bold></gradient>"
+    - "<gray>4 random rewards + guaranteed items"
+  offset: 1.6
+
+preview:
+  enabled: true
+  menu: preview
+
+rewards-mode: RANDOM
+max-win-rewards: 4        # <- "receive 4 Random Rewards"
+
+animation:
+  idle:
+    - "NINJA_STAR;{DUST;#a855f7;0;0.2;0;1.0;0;2}"
+  pre-open: DEFAULT
+  post-open: BALL
+  reward-display: DEFAULT
+
+rewards:
+  # ---------- Guaranteed Items (always granted, shown in their own lore section) ----------
+  nova_helmet:
+    always: true
+    percentage: 0
+    display-item:
+      material: DIAMOND_HELMET
+      name: "<gradient:#ffd166:#ff5ca8>Nova Helmet</gradient>"
+      enchants: { PROTECTION: 4, UNBREAKING: 3 }
+    win-items:
+      '0':
+        material: DIAMOND_HELMET
+        name: "<gradient:#ffd166:#ff5ca8>Nova Helmet</gradient>"
+        enchants: { PROTECTION: 4, UNBREAKING: 3 }
+  nova_chestplate:
+    always: true
+    percentage: 0
+    display-item:
+      material: DIAMOND_CHESTPLATE
+      name: "<gradient:#ffd166:#ff5ca8>Nova Chestplate</gradient>"
+      enchants: { PROTECTION: 4, UNBREAKING: 3 }
+    win-items:
+      '0':
+        material: DIAMOND_CHESTPLATE
+        name: "<gradient:#ffd166:#ff5ca8>Nova Chestplate</gradient>"
+        enchants: { PROTECTION: 4, UNBREAKING: 3 }
+  nova_leggings:
+    always: true
+    percentage: 0
+    display-item:
+      material: DIAMOND_LEGGINGS
+      name: "<gradient:#ffd166:#ff5ca8>Nova Leggings</gradient>"
+      enchants: { PROTECTION: 4, UNBREAKING: 3 }
+    win-items:
+      '0':
+        material: DIAMOND_LEGGINGS
+        name: "<gradient:#ffd166:#ff5ca8>Nova Leggings</gradient>"
+        enchants: { PROTECTION: 4, UNBREAKING: 3 }
+  nova_boots:
+    always: true
+    percentage: 0
+    display-item:
+      material: DIAMOND_BOOTS
+      name: "<gradient:#ffd166:#ff5ca8>Nova Boots</gradient>"
+      enchants: { PROTECTION: 4, UNBREAKING: 3 }
+    win-items:
+      '0':
+        material: DIAMOND_BOOTS
+        name: "<gradient:#ffd166:#ff5ca8>Nova Boots</gradient>"
+        enchants: { PROTECTION: 4, UNBREAKING: 3 }
+  galaxy_title:
+    always: true
+    percentage: 0
+    virtual: true
+    display-item: { material: NAME_TAG, name: "<light_purple>[<obfuscated>#</obfuscated>] <gradient:#a855f7:#22d3ee>GALAXY</gradient> Title", glow: true }
+    win-commands:
+      - "say Give %player% the GALAXY title here (replace with your titles plugin)"
+  void_rank:
+    always: true
+    percentage: 0
+    virtual: true
+    display-item: { material: END_CRYSTAL, name: "<dark_purple>[<gradient:#7b5cff:#22d3ee>VOID</gradient>] Rank", glow: true }
+    win-commands:
+      - "lp user %player% parent add void"
+
+  # ---------- Possible Rewards (the 4 random rolls draw from these) ----------
+  money_pouch:
+    percentage: 20.0
+    virtual: true
+    display-item: { material: GOLD_NUGGET, name: "<gold>Legendary Money Pouch" }
+    win-items:
+      '0': { material: GOLD_NUGGET, amount: 2, name: "<gold>Legendary Money Pouch" }
+    win-commands:
+      - "eco give %player% 25000"
+  orbs_pouch:
+    percentage: 20.0
+    virtual: true
+    display-item: { material: EXPERIENCE_BOTTLE, name: "<aqua>Legendary Orbs Pouch" }
+    win-items:
+      '0': { material: EXPERIENCE_BOTTLE, amount: 2, name: "<aqua>Legendary Orbs Pouch" }
+    win-commands:
+      - "xp add %player% 100 levels"
+  gems_pouch:
+    percentage: 18.0
+    display-item: { material: EMERALD, name: "<green>Legendary Gems Pouch" }
+    win-items:
+      '0': { material: EMERALD, amount: 32, name: "<green>Legendary Gems Pouch" }
+  obsidian_golem:
+    percentage: 8.0
+    virtual: true
+    display-item: { material: OBSIDIAN, name: "<dark_gray>Obsidian Golem", glow: true }
+    win-commands:
+      - "say Spawn %player% an Obsidian Golem here (replace with your pets plugin)"
+  lucky_golem:
+    percentage: 6.0
+    virtual: true
+    display-item: { material: RAW_GOLD_BLOCK, name: "<yellow>Lucky Golem", glow: true }
+    win-commands:
+      - "say Spawn %player% a Lucky Golem here (replace with your pets plugin)"
+  cube_box:
+    percentage: 8.0
+    virtual: true
+    display-item: { material: PURPLE_SHULKER_BOX, name: "<light_purple>Legendary Cube Box" }
+    win-commands:
+      - "crates lootbox give daily %player% 3"     # lootboxes can grant lootboxes
+  pet_candy:
+    percentage: 8.0
+    display-item: { material: SWEET_BERRIES, name: "<red>Pet Candy" }
+    win-items:
+      '0': { material: SWEET_BERRIES, amount: 5, name: "<red>Pet Candy" }
+  rank_shards:
+    percentage: 6.0
+    display-item: { material: PRISMARINE_SHARD, name: "<light_purple>Rank Shards" }
+    win-items:
+      '0': { material: PRISMARINE_SHARD, amount: 25, name: "<light_purple>Rank Shards" }
+  elite_keys:
+    percentage: 3.0
+    virtual: true
+    display-item: { material: TRIPWIRE_HOOK, name: "<blue>Elite Keys", glow: true }
+    win-items:
+      '0': { material: TRIPWIRE_HOOK, amount: 5, name: "<blue>Elite Keys" }
+    win-commands:
+      - "crates key give vote %player% 5"
+  master_keys:
+    percentage: 2.0
+    virtual: true
+    display-item: { material: TRIPWIRE_HOOK, name: "<gold>Master Keys", glow: true }
+    win-items:
+      '0': { material: TRIPWIRE_HOOK, amount: 3, name: "<gold>Master Keys" }
+    win-commands:
+      - "crates key give premium %player% 3"
+  premium_mine:
+    percentage: 1.0
+    virtual: true
+    broadcast: true
+    display-item: { material: NETHERITE_PICKAXE, name: "<gradient:#ffd166:#ff5ca8><bold>Premium Mine Access</bold></gradient>", glow: true }
+    win-commands:
+      - "lp user %player% permission settemp mine.premium true 30d"
+
+guaranteed:
+  enabled: false
+  mode: REPETITIVE
+  milestones: []
+
+reroll:
+  enabled: false
+  free: 0
+  groups: {}

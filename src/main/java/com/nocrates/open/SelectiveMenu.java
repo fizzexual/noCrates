@@ -40,7 +40,8 @@ public final class SelectiveMenu extends Menu {
     @Override
     protected void draw() {
         List<Integer> slots = contentSlots();
-        List<Reward> rewards = crate.rewardList();
+        // always-rewards are not choices — they come with every pick automatically
+        List<Reward> rewards = crate.rewardList().stream().filter(r -> !r.always()).toList();
         int perPage = slots.size();
         int pages = Math.max(1, (rewards.size() + perPage - 1) / perPage);
         page = Math.min(page, pages - 1);
@@ -101,8 +102,16 @@ public final class SelectiveMenu extends Menu {
         var data = services.players().of(viewer);
         data.incrOpens(crate.id());
         services.actionLogger().open(viewer.getName(), crate.id());
-        OpenSession session = new OpenSession(viewer, crate, placement, true,
-                new ArrayList<>(List.of(reward)), new boolean[]{false}, 0);
+        // the chosen reward plus every always-reward (guaranteed items)
+        List<Reward> outcome = new ArrayList<>(List.of(reward));
+        for (Reward extra : crate.rewards().values()) {
+            if (extra.always() && !outcome.contains(extra)) outcome.add(extra);
+        }
+        boolean[] alternative = new boolean[outcome.size()];
+        for (int i = 0; i < outcome.size(); i++) {
+            alternative[i] = !services.openService().isAllowed(viewer, data, crate, outcome.get(i));
+        }
+        OpenSession session = new OpenSession(viewer, crate, placement, true, outcome, alternative, 0);
         session.grantAll();
     }
 

@@ -27,6 +27,8 @@ public final class Reward {
     private String rarity;
     /** In SELECTIVE mode: how many linked-key units this choice costs. */
     private int selectiveCost = 1;
+    /** Granted on EVERY opening (lootbox "guaranteed items"); excluded from the roll pool. */
+    private boolean always;
 
     public Reward(String id) {
         this.id = id;
@@ -126,6 +128,14 @@ public final class Reward {
 
     public void selectiveCost(int selectiveCost) {
         this.selectiveCost = Math.max(1, selectiveCost);
+    }
+
+    public boolean always() {
+        return always;
+    }
+
+    public void always(boolean always) {
+        this.always = always;
     }
 
     /** Display name for chat: explicit display-item name, else the material. */

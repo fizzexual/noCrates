@@ -132,6 +132,7 @@ public final class CrateSerializer {
         reward.globalLimit(new WinLimit(rs.getInt("win-limits.global", -1), rs.getLong("win-limits.global-cooldown", 0)));
         reward.rarity(rs.getString("rarity"));
         reward.selectiveCost(rs.getInt("selective-cost", 1));
+        reward.always(rs.getBoolean("always", false));
         ConfigurationSection alt = rs.getConfigurationSection("alternative-reward");
         if (alt != null) {
             AlternativeReward alternative = new AlternativeReward();
@@ -238,6 +239,7 @@ public final class CrateSerializer {
         }
         if (reward.rarity() != null) rs.set("rarity", reward.rarity());
         if (reward.selectiveCost() != 1) rs.set("selective-cost", reward.selectiveCost());
+        if (reward.always()) rs.set("always", true);
         if (reward.alternative().enabled()) {
             ConfigurationSection alt = section(rs, "alternative-reward");
             alt.set("enabled", true);

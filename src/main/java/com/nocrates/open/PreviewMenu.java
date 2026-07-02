@@ -72,8 +72,12 @@ public final class PreviewMenu extends Menu {
             if (rarity != null) lore.add(Text.mm(rarity));
             // Players only ever see the real, normalized chance — raw weights are
             // an admin concept and stay in the editor.
-            lore.add(Text.mm(lang.rawString("preview-lore-chance")
-                    .replace("<chance>", trim(crate.normalizedChance(reward)))));
+            if (reward.always()) {
+                lore.add(Text.mm(lang.rawString("preview-lore-guaranteed")));
+            } else {
+                lore.add(Text.mm(lang.rawString("preview-lore-chance")
+                        .replace("<chance>", trim(crate.normalizedChance(reward)))));
+            }
             meta.lore(lore);
             icon.setItemMeta(meta);
         }

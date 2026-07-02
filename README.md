@@ -29,7 +29,7 @@
 - 🎬 **Cinematic openings** — every crate chains three independently chosen phases (*pre-open → post-open → reward display*) from a pool of **26 animations**: lightning strikes, sonic booms, black holes, orbiting reward reels, a frog that cannonballs into your crate, a CS:GO-style spinner both in-world *and* as a GUI, and more. Mix them into hundreds of combinations — per crate, in-game.
 - 🌀 **Idle auras** — crates glow around the clock with **13 parametric particle shapes** (spirals, stars, astroids, flowers, pulses…) in any particle and any color, built with a point-and-click wizard or a one-line spec.
 - 🔑 **Keys done right** — keys are first-class objects linked to crates many-to-many with per-link *amounts* and *consumption priority*. Virtual (dupe-proof) and physical keys, key payments between players, and keys that **guarantee a rarity tier**.
-- 🎁 **A reward engine with teeth** — multiple win-items + commands per reward, per-player *and* global win limits with cooldowns, permission-restricted rewards with automatic **alternative rewards**, broadcast/virtual/shared rewards, and up to **30 rewards per opening**.
+- 🎁 **A reward engine with teeth** — multiple win-items + commands per reward, per-player *and* global win limits with cooldowns, permission-restricted rewards with automatic **alternative rewards**, `always` rewards granted on **every** open (lootbox "guaranteed items"), broadcast/virtual/shared rewards, and up to **30 rewards per opening**.
 - 🧭 **Two ways to win** — classic weighted **RANDOM** rolls, or **SELECTIVE** mode where players *choose* their reward for a key cost. No gambling, no chargebacks, P2W-friendly.
 - 🛡️ **Guaranteed win** — pity milestones that fire every N opens (*repetitive*) or at one-time thresholds (*sequential*), with optional chance mixing and live placeholders.
 - 🎲 **Rerolls** — free-per-open, permission-group and admin-granted reroll balances stack; a claim-or-reroll menu appears after the animation and closing it always claims, so a reroll can never void a reward.
@@ -47,7 +47,7 @@ Toggle any of them in `modules.yml` — no extra downloads, no paywalls.
 | **last-winner** | Rolling winner-history placeholders per crate (`%nocrates_lastwinner_player_<crate>_1%` …) |
 | **crate-claim** | Rewards that don't fit the winner's inventory are stored — `/crates claim` menu with claim-all |
 | **mass-opening** | Open x1/x6/x12/x32/x64/**ALL** keys at once behind per-tier permissions, with an aggregated summary instead of chat spam |
-| **lootboxes** | Give players placeable one-shot crates: place it, watch the animation, box gone |
+| **lootboxes** | Right-click lootbox items that instantly grant N random rewards + all guaranteed items — the item's lore auto-lists both sections with amounts ("2x Legendary Money Pouch"). Placeable one-shot boxes too |
 | **animations-plus** | The showcase pack — Physical CSGO, Orbit Roulette, Black Hole, Astro Burst, Rainbow, Cyclone Heart, Froggo Boom, Chicken Jockey |
 | **chest-hunt** | Opening spawns M chests around you — crack open K of them, each with its own roll, then the area restores itself |
 
@@ -95,6 +95,7 @@ Fresh installs ship one fully-commented example per feature — open them in `cr
 | `hunt` | **Chest Hunt** — temporary chests spawn around you, pick 4 of 8 | `/crates attach hunt` in an open area |
 | `daily` | **Keyless** crate on a 24h cooldown + **lootbox** one-shot items + GUI spinner | `/crates lootbox give daily <you> 3` |
 | `showcase` | **MODEL** engine (floating crate) + animations-plus circus (chicken jockey → black hole), 3 rewards per open, layered idle auras | `/crates open showcase` |
+| `cluster` | **Right-click lootbox**: 4 random rewards + 6 guaranteed items per box, auto-generated two-section lore | `/crates lootbox give cluster <you> 3` |
 
 ## ⌨ Commands & permissions
 
@@ -104,7 +105,7 @@ Aliases `/crates` `/crate` `/nocrates` `/nc`. Admin verbs need `nocrates.command
 |---|---|
 | **Players** | `open <crate>` · `preview <crate>` · `virtualkeys` · `claim` · `key pay <key> <player> <n>` · `stats` |
 | **Crates** | `create` `delete` `clone` `enable` `disable` · `edit [crate]` / `editor` · `list` |
-| **Placement** | `attach <crate>` · `detach` · `placecrate <crate> <world> <x> <y> <z>` · `givecrate <crate> <player> [n]` · `lootbox give <crate> <player> [n]` |
+| **Placement** | `attach <crate>` · `detach` · `placecrate <crate> <world> <x> <y> <z>` · `givecrate <crate> <player> [n]` · `lootbox give <crate> <player> [n] [placeable]` |
 | **Rewards** | `givereward <crate> <reward> <player\|all>` · `giverandomreward <crate> <player\|all>` · `resetwinlimit player\|global <crate> [player]` |
 | **Keys** | `key give\|giveall\|take\|set\|check <...>` (append `physical` to give the item) |
 | **Extras** | `massopen <crate>` · `reroll give\|take <crate> <player> <n>` · `resetcooldown <crate> <player>` · `migrate <source>` · `reload` |

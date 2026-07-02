@@ -131,6 +131,16 @@ public final class RewardEditor extends Menu {
             refresh();
         }));
 
+        set(25, new MenuItem(EditorIcons.toggle("Guaranteed every open", reward.always(),
+                "Granted on EVERY opening in addition",
+                "to the random rolls (lootbox",
+                "\"guaranteed items\" section)."), e -> {
+            clickSound();
+            reward.always(!reward.always());
+            save();
+            refresh();
+        }));
+
         set(24, new MenuItem(EditorIcons.button(Material.BARRIER,
                 "Restricted permissions (" + reward.restrictedPermissions().size() + ")",
                 "Players WITH these perms can't win this.",

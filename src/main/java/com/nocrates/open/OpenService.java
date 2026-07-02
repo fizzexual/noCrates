@@ -155,20 +155,27 @@ public final class OpenService {
     /**
      * Rolls {@code count} rewards. Rewards whose limits/permissions block them and that
      * have no alternative are excluded up front so configured promises hold; blocked
-     * rewards with an alternative stay in the pool at their advertised odds.
+     * rewards with an alternative stay in the pool at their advertised odds. Rewards
+     * flagged {@code always} never enter the pool — they are appended to every outcome
+     * (the lootbox "guaranteed items" section).
      */
     public Rolled rollOutcome(Player player, Crate crate, int count) {
         var services = Services.get();
         PlayerData data = services.players().of(player);
 
+        List<Reward> alwaysRewards = new ArrayList<>();
         List<Reward> pool = new ArrayList<>();
         for (Reward reward : crate.rewards().values()) {
+            if (reward.always()) {
+                alwaysRewards.add(reward);
+                continue;
+            }
             if (reward.percentage() <= 0) continue;
             if (isAllowed(player, data, crate, reward) || reward.alternative().enabled()) {
                 pool.add(reward);
             }
         }
-        if (pool.isEmpty()) return null;
+        if (pool.isEmpty() && alwaysRewards.isEmpty()) return null;
 
         List<Reward> rewards = new ArrayList<>();
         boolean guaranteed = false;
@@ -187,13 +194,16 @@ public final class OpenService {
                 milestoneIndex = result.nextIndex();
             }
         }
-        while (rewards.size() < count) {
+        while (!pool.isEmpty() && rewards.size() < count) {
             List<Reward> source = new ArrayList<>(pool);
             source.removeAll(rewards);
             if (source.isEmpty()) source = pool;
             Reward roll = rollEngine.roll(source, com.nocrates.reward.Weights::of);
             if (roll == null) break;
             rewards.add(roll);
+        }
+        for (Reward extra : alwaysRewards) {
+            if (!rewards.contains(extra)) rewards.add(extra);
         }
         if (rewards.isEmpty()) return null;
 

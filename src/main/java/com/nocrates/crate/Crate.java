@@ -223,9 +223,12 @@ public final class Crate {
         rewards.remove(id.toLowerCase(java.util.Locale.ROOT));
     }
 
-    /** Normalized chance (0-100) of one reward relative to the whole crate. */
+    /** Normalized chance (0-100) of one reward relative to the rollable pool; always-rewards are 100. */
     public double normalizedChance(Reward reward) {
-        double total = rewards.values().stream().mapToDouble(com.nocrates.reward.Weights::of).sum();
+        if (reward.always()) return 100.0;
+        double total = rewards.values().stream()
+                .filter(r -> !r.always())
+                .mapToDouble(com.nocrates.reward.Weights::of).sum();
         return total <= 0 ? 0 : com.nocrates.reward.Weights.of(reward) / total * 100.0;
     }
 

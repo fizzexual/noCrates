@@ -49,7 +49,7 @@ class CrateSerializerTest {
 
     @Test
     void everyShippedExampleCrateParses() {
-        String[] shipped = {"example", "shop", "legendary", "hunt", "daily", "showcase"};
+        String[] shipped = {"example", "shop", "legendary", "hunt", "daily", "showcase", "cluster"};
         for (String name : shipped) {
             var in = getClass().getClassLoader().getResourceAsStream("crates/" + name + ".yml");
             assertNotNull(in, name + ".yml resource missing");
@@ -66,6 +66,28 @@ class CrateSerializerTest {
             assertEquals(crate.rewardsMode(), reread.rewardsMode(), name);
             assertEquals(crate.keys(), reread.keys(), name);
         }
+    }
+
+    @Test
+    void alwaysRewardsAreGuaranteedAndExcludedFromChances() {
+        var in = getClass().getClassLoader().getResourceAsStream("crates/cluster.yml");
+        assertNotNull(in);
+        var yml = YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
+        Crate crate = CrateSerializer.read("cluster", yml);
+
+        long alwaysCount = crate.rewards().values().stream().filter(r -> r.always()).count();
+        assertEquals(6, alwaysCount, "cluster ships 6 guaranteed items");
+        assertTrue(crate.reward("nova_helmet").always());
+        // guaranteed rewards read as 100%, and never dilute the pool's chances
+        assertEquals(100.0, crate.normalizedChance(crate.reward("nova_helmet")), 0.001);
+        assertEquals(20.0, crate.normalizedChance(crate.reward("money_pouch")), 0.001);
+
+        // the flag survives a round trip
+        YamlConfiguration out = new YamlConfiguration();
+        CrateSerializer.write(crate, out);
+        Crate reread = CrateSerializer.read("cluster", out);
+        assertTrue(reread.reward("void_rank").always());
+        assertEquals(alwaysCount, reread.rewards().values().stream().filter(r -> r.always()).count());
     }
 
     @Test
